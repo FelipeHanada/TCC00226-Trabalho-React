@@ -1,9 +1,15 @@
 import { createBrowserRouter } from "react-router-dom";
-import Layout from "./Layout";
-import ProfilePage from "../pages/profilePage";
-import SearchPage from "../pages/SearchPage";
-import LoginPage from "../pages/LoginPage";
+import ProtectedRoute from "../components/ProtectedRoute";
+import PublicRoute from "../components/PublicRoute";
+import ArticlesPage from "../pages/ArticlesPage";
+import CartPage from "../pages/CartPage";
+import FavoritesPage from "../pages/FavoritesPage";
 import HomePage from "../pages/HomePage";
+import LoginPage from "../pages/LoginPage";
+import RegisterPage from "../pages/RegisterPage";
+import SearchPage from "../pages/SearchPage";
+import Layout from "./Layout";
+import ProfilePage from "../pages/ProfilePage";
 
 const router = createBrowserRouter([
   {
@@ -16,7 +22,35 @@ const router = createBrowserRouter([
       },
       {
         path: "profile",
-        element: <ProfilePage />
+        element: (
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: "articles",
+        element: (
+          <ProtectedRoute>
+            <ArticlesPage />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: "cart",
+        element: (
+          <ProtectedRoute>
+            <CartPage />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: "favorites",
+        element: (
+          <ProtectedRoute>
+            <FavoritesPage />
+          </ProtectedRoute>
+        )
       }
     ]
   },
@@ -27,6 +61,14 @@ const router = createBrowserRouter([
   {
     path: "/search",
     element: <SearchPage />
+  },
+  {
+    path: "/register",
+    element: (
+      <PublicRoute>
+        <RegisterPage />
+      </PublicRoute>
+    )
   }
 ])
 

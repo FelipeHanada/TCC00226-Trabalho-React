@@ -4,7 +4,7 @@ import uffLogo from "../assets/images/UFF_brasão.png";
 
 export default function Footer() {
   return (
-    <footer className="footer w-100 footer-container" style={{ overflow: "hidden" }}>
+    <footer className="footer w-100 footer-container bg-light py-3 mt-auto" style={{ overflow: "hidden", marginTop: "auto" }}>
       <div className="w-100 d-flex justify-content-center align-items-center flex-column"
           style={{ minHeight: "200px", maxHeight: "300px" }}>
           <div className="w-100 h-75 d-flex align-items-center gap-5 mb-2" style={{ justifyContent: "space-evenly" }}>
