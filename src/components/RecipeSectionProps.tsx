@@ -1,25 +1,54 @@
-interface RecipeSectionProps {
-  author: string
-  date: string
-  imageSrc: string
-  imageAlt?: string
-  description: string
-  ingredients: {
-    title: string
-    items: string[]
-  }[]
-  instructions: string[]
+import ReactMarkdown from 'react-markdown';
+
+interface Author {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  aboutMe: string;
 }
 
-export default function RecipeSection({
-  author,
-  date,
-  imageSrc,
-  imageAlt = '',
-  description,
-  ingredients,
-  instructions,
-}: RecipeSectionProps) {
+interface Article {
+  id: number;
+  title?: string;
+  description?: string;
+  cardImage?: string;
+  contentMD?: string;
+  publishedAt?: string;
+  author?: Author;
+}
+
+interface RecipeSectionProps {
+  article?: Article;
+}
+
+export default function RecipeSection({ article }: RecipeSectionProps) {
+  if (!article) {
+    return (
+      <div className="alert alert-warning" role="alert">
+        <i className="bi bi-exclamation-triangle"></i> Artigo não encontrado.
+      </div>
+    );
+  }
+
+  const authorName = article.author 
+    ? `${article.author.firstName} ${article.author.lastName}` 
+    : "Autor Desconhecido";
+  const formatPublishedDate = (publishedAt?: string) => {
+    if (!publishedAt) return "Publicado recentemente";
+    
+    try {
+      const date = new Date(publishedAt);
+      return `Publicado em ${date.toLocaleDateString('pt-BR')} às ${date.toLocaleTimeString('pt-BR', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      })}`;
+    } catch {
+      return "Publicado recentemente";
+    }
+  };
+
   return (
     <div
       className="border px-4 py-3 mb-5"
@@ -29,48 +58,70 @@ export default function RecipeSection({
       data-bs-smooth-scroll="true"
       tabIndex={0}
     >
-      <h1>Receita Completa de Torta de Morango</h1>
+      <h1>{article.title || "Título não disponível"}</h1>
 
       <div className="d-flex justify-content-between">
-        <p>{author}</p>
-        <p>{date}</p>
+        <p className="text-muted">
+          <i className="bi bi-person-circle me-1"></i>
+          {authorName}
+        </p>
+        <p className="text-muted">
+          <i className="bi bi-calendar3 me-1"></i>
+          {formatPublishedDate(article.publishedAt)}
+        </p>
       </div>
 
       <div className="d-flex justify-content-center mb-3">
         <img
-          src={imageSrc}
+          src={article.cardImage || '/src/assets/images/tortamorango.png'}
           className="img-fluid rounded border"
-          style={{ height: 240, width: 360, overflow: 'hidden' }}
-          alt={imageAlt}
+          style={{ height: 240, width: 360, objectFit: 'cover' }}
+          alt={article.title || "Receita"}
         />
       </div>
 
-      <section id="descricao">
-        <p className="text-justify">{description}</p>
+      <section id="descricao" className="mb-4">
+        <h3 className="mb-3">
+          <i className="bi bi-file-text me-2"></i>
+          Descrição
+        </h3>
+        <p className="text-justify">{article.description || "Descrição não disponível."}</p>
       </section>
 
-      <section id="ingredientes">
-        <h3>Ingredientes</h3>
-        {ingredients.map((group, i) => (
-          <div key={i}>
-            <h4>{group.title}</h4>
-            <ul>
-              {group.items.map((item, j) => (
-                <li key={j}>{item}</li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </section>
-
-      <section id="modo-preparo">
-        <h3>Modo de Preparo</h3>
-        {instructions.map((step, i) => (
-          <p key={i} className="text-justify">
-            {step}
-          </p>
-        ))}
+      <section id="conteudo" className="mb-4">
+        <h3 className="mb-3">
+          <i className="bi bi-book me-2"></i>
+          Receita Completa
+        </h3>
+        <div className="markdown-content">
+          <ReactMarkdown
+            components={{
+              h1: ({children}) => <h4 className="mt-4 mb-2 text-primary">{children}</h4>,
+              h2: ({children}) => <h5 className="mt-3 mb-2 text-secondary">{children}</h5>,
+              h3: ({children}) => <h6 className="mt-3 mb-2">{children}</h6>,
+              ul: ({children}) => <ul className="mb-3">{children}</ul>,
+              ol: ({children}) => <ol className="mb-3">{children}</ol>,
+              li: ({children}) => <li className="mb-1">{children}</li>,
+              p: ({children}) => <p className="text-justify mb-3">{children}</p>,
+              strong: ({children}) => <strong className="text-dark">{children}</strong>,
+              em: ({children}) => <em className="text-muted">{children}</em>,
+              blockquote: ({children}) => (
+                <blockquote className="blockquote border-start border-primary border-3 ps-3 my-3">
+                  {children}
+                </blockquote>
+              ),
+              code: ({children}) => (
+                <code className="bg-light px-1 rounded text-danger">{children}</code>
+              ),
+              pre: ({children}) => (
+                <pre className="bg-light p-3 rounded border">{children}</pre>
+              ),
+            }}
+          >
+            {article.contentMD || "Conteúdo não disponível."}
+          </ReactMarkdown>
+        </div>
       </section>
     </div>
-  )
-} 
+  );
+}

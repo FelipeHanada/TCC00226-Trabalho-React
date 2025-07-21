@@ -50,7 +50,6 @@ const useHomeArticles = (): UseHomeArticlesReturn => {
         setLoading(true);
         setError(null);
         
-        // Buscar os primeiros 4 artigos
         const response = await axios.get<PageResult<Article>>(
           'http://localhost:8080/article?page=0&pageSize=4'
         );
@@ -58,10 +57,8 @@ const useHomeArticles = (): UseHomeArticlesReturn => {
         const articles = response.data.items;
         
         if (articles.length > 0) {
-          // Primeiro artigo será o destaque
           setFeaturedArticle(articles[0]);
           
-          // Os próximos 3 artigos serão os cards laterais
           setSideArticles(articles.slice(1, 4));
         }
         

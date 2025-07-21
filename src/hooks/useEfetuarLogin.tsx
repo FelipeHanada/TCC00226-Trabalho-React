@@ -24,7 +24,6 @@ interface ApiLoginResponse {
     aboutMe?: string;
     phoneNumber?: string;
   };
-  // Fallback para casos onde os dados do usuário não vêm separados
   id?: number;
   email?: string;
   firstName?: string;

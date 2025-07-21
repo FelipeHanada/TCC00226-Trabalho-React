@@ -78,7 +78,6 @@ export default function FavoritesPage() {
     }
   };
 
-  // Componente para input de quantidade
   const QuantityInput = ({ favorite }: { favorite: FavoriteItem }) => {
     const cartInfo = getCartInfoForFavorite(favorite.id);
     const [quantity, setQuantity] = useState<string>(cartInfo.quantity.toString());
@@ -91,25 +90,17 @@ export default function FavoritesPage() {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
       setQuantity(value);
-      
-      const newQuantity = parseInt(value);
-      if (!isNaN(newQuantity) && newQuantity >= 0) {
-        if (newQuantity === 0) {
-          handleRemoveFromCart(favorite.id);
-        } else {
-          if (cartInfo.quantity === 0) {
-            // Se não estava no carrinho, adiciona primeiro
-            handleAddToCart(favorite);
-          }
-          handleQuantityChange(favorite.id, newQuantity);
-        }
-      }
     };
 
     const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
       const value = e.target.value.trim();
       
-      if (value === '' || parseInt(value) < 0 || isNaN(parseInt(value))) {
+      if (value === '') {
+        e.target.focus();
+        return;
+      }
+      
+      if (parseInt(value) < 0 || isNaN(parseInt(value))) {
         setQuantity(cartInfo.quantity.toString());
         return;
       }
@@ -128,8 +119,22 @@ export default function FavoritesPage() {
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      const allowedKeys = [
+        'Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
+        'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+        'Home', 'End'
+      ];
+      
+      if (!allowedKeys.includes(e.key) && !/[0-9]/.test(e.key)) {
+        e.preventDefault();
+        return;
+      }
+      
       if (e.key === 'Enter') {
-        e.currentTarget.blur();
+        const value = e.currentTarget.value.trim();
+        if (value !== '') {
+          e.currentTarget.blur();
+        }
       }
     };
 
@@ -145,7 +150,6 @@ export default function FavoritesPage() {
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
           min="0"
-          placeholder="0"
         />
       </div>
     );
@@ -218,7 +222,6 @@ export default function FavoritesPage() {
         </div>
       ) : (
         <>
-          {/* Cabeçalho da tabela */}
           <div className="row mb-3">
             <div className="col-12">
               <div className="row bg-light p-3 rounded">
@@ -244,7 +247,6 @@ export default function FavoritesPage() {
             </div>
           </div>
 
-          {/* Lista de favoritos */}
           {favorites.map((favorite) => {
             const cartInfo = getCartInfoForFavorite(favorite.id);
             return (
@@ -265,7 +267,6 @@ export default function FavoritesPage() {
                     </div>
                     <div className="col-md-3">
                       <h5 className="mb-1">{favorite.title}</h5>
-                      <small className="text-muted">ID: #{favorite.id}</small>
                     </div>
                     <div className="col-md-2">
                       <p className="mb-0">
@@ -300,7 +301,6 @@ export default function FavoritesPage() {
             );
           })}
 
-          {/* Resumo */}
           <div className="row mt-4">
             <div className="col-12">
               <div className="card">

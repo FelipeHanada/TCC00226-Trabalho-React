@@ -5,6 +5,7 @@ import pudimImg from '../assets/images/pudim.png'
 import slide1Img from '../assets/images/slide1.png'
 import slide2Img from '../assets/images/slide2.png'
 import { default as slide3Img, default as tortaMorangoImg } from '../assets/images/tortamorango.png'
+import ApiRecipeCard from '../components/ApiRecipeCard'
 import Breadcrumb from '../components/Breadcumb'
 import type { CarouselItem } from '../components/Carousel'
 import Carousel from '../components/Carousel'
@@ -15,8 +16,6 @@ import RecipeSection from '../components/RecipeSectionProps'
 import RecipeSidebarNav from '../components/RecipeSideBarNav'
 import useHomeArticle from '../hooks/useHomeArticle'
 import { useAuthStore } from '../store/authStore'
-import { getDefaultIngredients, getDefaultInstructions, parseArticleContent } from '../utils/articleParser'
-import ApiRecipeCard from '../components/ApiRecipeCard'
 
 
 const carouselItems: CarouselItem[] = [
@@ -44,8 +43,7 @@ const carouselItems: CarouselItem[] = [
 
 const navItems = [
   { label: 'Descrição', href: '#descricao' },
-  { label: 'Ingredientes', href: '#ingredientes' },
-  { label: 'Modo de Preparo', href: '#modo-preparo' },
+  { label: 'Receita Completa', href: '#conteudo' },
 ]
 
 const comments = [
@@ -122,19 +120,70 @@ export default function HomePage() {
   const navigate = useNavigate()
   const { isAuthenticated } = useAuthStore()
   const { currentArticle, sideArticles, loading, error } = useHomeArticle()
-  
-  // Processar conteúdo do artigo principal
-  const articleContent = currentArticle?.contentMD 
-    ? parseArticleContent(currentArticle.contentMD)
-    : { ingredients: [], instructions: [] }
-  
-  const ingredients = articleContent.ingredients.length > 0 
-    ? articleContent.ingredients 
-    : getDefaultIngredients()
-  
-  const instructions = articleContent.instructions.length > 0 
-    ? articleContent.instructions 
-    : getDefaultInstructions()
+
+  const defaultArticle = {
+    id: 0,
+    title: "Receita Completa de Torta de Morango",
+    description: "A torta de morango é uma sobremesa clássica e deliciosa, perfeita para qualquer ocasião especial. Com uma massa crocante, creme suave e morangos frescos, esta receita é um verdadeiro deleite para os amantes de doces.",
+    cardImage: tortaMorangoImg,
+    contentMD: `# Ingredientes
+
+## Para a massa:
+- 200g de farinha de trigo
+- 100g de açúcar
+- 100g de manteiga gelada
+- 1 ovo
+- 1 pitada de sal
+
+## Para o creme:
+- 500ml de leite
+- 3 ovos
+- 100g de açúcar
+- 3 colheres de sopa de amido de milho
+- 1 colher de chá de essência de baunilha
+
+## Para a cobertura:
+- 500g de morangos frescos
+- 2 colheres de sopa de geleia de morango
+- Folhas de hortelã para decorar
+
+# Modo de Preparo
+
+## Preparando a massa:
+1. Em uma tigela, misture a farinha, açúcar e sal
+2. Adicione a manteiga gelada em cubos e misture até formar uma farofa
+3. Adicione o ovo e misture até formar uma massa homogênea
+4. Embrulhe em filme plástico e leve à geladeira por 30 minutos
+
+## Preparando o creme:
+1. Em uma panela, aqueça o leite em fogo médio
+2. Em uma tigela, bata os ovos com açúcar até clarear
+3. Adicione o amido de milho e misture bem
+4. Adicione o leite quente aos poucos, mexendo sempre
+5. Retorne à panela e cozinhe mexendo até engrossar
+6. Adicione a essência de baunilha e deixe esfriar
+
+## Montagem:
+1. Abra a massa e forre uma forma de torta
+2. Faça furos com um garfo e asse por 15 minutos a 180°C
+3. Deixe esfriar e adicione o creme
+4. Decore com os morangos cortados
+5. Pincele com a geleia de morango aquecida
+6. Decore com folhas de hortelã
+
+**Dica:** Sirva gelada para melhor sabor!`,
+    publishedAt: "2025-01-04T20:33:00",
+    author: {
+      id: 0,
+      firstName: "Marco",
+      lastName: "Antônio",
+      email: "marco.antonio@email.com",
+      phoneNumber: "(21) 99999-9999",
+      aboutMe: "Chef especialista em doces e sobremesas"
+    }
+  }
+
+  const displayArticle = currentArticle || defaultArticle
 
   return (
     <>
@@ -170,8 +219,12 @@ export default function HomePage() {
                 { label: 'Página Inicial', href: '#' },
                 { label: 'Doces', href: '#' },
                 { label: 'Tortas', href: '#' },
-                { label: 'Marco Antónitos', href: '#' },
-                { label: currentArticle?.title || 'Receita Completa de Torta de Morango', active: true },
+                { label: displayArticle?.author 
+                    ? `${displayArticle.author.firstName} ${displayArticle.author.lastName}` 
+                    : 'Autor Desconhecido', 
+                  href: '#' 
+                },
+                { label: displayArticle?.title || 'Receita', active: true },
               ]}
             />
 
@@ -188,16 +241,12 @@ export default function HomePage() {
               <div className="alert alert-danger" role="alert">
                 <i className="bi bi-exclamation-triangle"></i> {error}
               </div>
+            ) : displayArticle ? (
+              <RecipeSection article={displayArticle} />
             ) : (
-              <RecipeSection
-                author={currentArticle?.author ? `${currentArticle.author.firstName} ${currentArticle.author.lastName}` : "Autor Desconhecido"}
-                date={currentArticle ? "Publicado recentemente" : "Publicado em 01/04/2025 às 20:33"}
-                imageSrc={currentArticle?.cardImage || tortaMorangoImg}
-                imageAlt={currentArticle?.title || "Torta de Morango"}
-                description={currentArticle?.description || "A torta de morango é uma sobremesa clássica e deliciosa, perfeita para qualquer ocasião..."}
-                ingredients={ingredients}
-                instructions={instructions}
-              />
+              <div className="alert alert-warning" role="alert">
+                <i className="bi bi-exclamation-triangle"></i> Nenhum artigo disponível.
+              </div>
             )}
 
             <div className="border px-4 py-3">

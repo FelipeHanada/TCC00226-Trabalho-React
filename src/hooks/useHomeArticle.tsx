@@ -28,15 +28,12 @@ const useHomeArticle = (): UseHomeArticleReturn => {
         setError(null);
 
         if (articleId) {
-          // Buscar artigo específico
           const response = await axios.get<Article>(`http://localhost:8080/article/${articleId}`);
           setCurrentArticle(response.data);
           
-          // Buscar outros artigos para a sidebar
           const sideResponse = await axios.get<{items: Article[]}>(`http://localhost:8080/article?page=0&pageSize=6`);
           setSideArticles(sideResponse.data.items.filter(article => article.id !== parseInt(articleId)).slice(0, 3));
         } else {
-          // Buscar artigo em destaque (primeiro da lista)
           const response = await axios.get<{items: Article[]}>(`http://localhost:8080/article?page=0&pageSize=6`);
           const articles = response.data.items;
           

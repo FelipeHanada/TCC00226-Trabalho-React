@@ -18,24 +18,18 @@ export default function CartItemComponent({ item }: CartItemComponentProps) {
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setQuantity(value);
-    
-    const newQuantity = parseInt(value);
-    if (!isNaN(newQuantity) && newQuantity > 0) {
-      updateQuantity(item.id, newQuantity);
-    }
   };
 
   const handleQuantityBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const value = e.target.value.trim();
     
-    if (value === '' || parseInt(value) <= 0 || isNaN(parseInt(value))) {
-      e.preventDefault();
-      if (inputRef.current) {
-        setTimeout(() => {
-          inputRef.current?.focus();
-          inputRef.current?.select();
-        }, 10);
-      }
+    if (value === '') {
+      e.target.focus();
+      return;
+    }
+    
+    if (parseInt(value) <= 0 || isNaN(parseInt(value))) {
+      setQuantity(item.quantity.toString());
       return;
     }
     
@@ -45,14 +39,21 @@ export default function CartItemComponent({ item }: CartItemComponentProps) {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Tab' || e.key === 'Enter') {
+    const allowedKeys = [
+      'Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
+      'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+      'Home', 'End'
+    ];
+    
+    if (!allowedKeys.includes(e.key) && !/[0-9]/.test(e.key)) {
+      e.preventDefault();
+      return;
+    }
+    
+    if (e.key === 'Enter') {
       const value = e.currentTarget.value.trim();
-      if (value === '' || parseInt(value) <= 0 || isNaN(parseInt(value))) {
-        e.preventDefault();
-        setTimeout(() => {
-          inputRef.current?.focus();
-          inputRef.current?.select();
-        }, 10);
+      if (value !== '') {
+        e.currentTarget.blur();
       }
     }
   };

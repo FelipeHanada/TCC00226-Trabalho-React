@@ -34,7 +34,6 @@ export default function CartPage() {
 
     if (showClearModal) {
       document.addEventListener('keydown', handleKeyDown);
-      // Previne scroll do body quando modal está aberto
       document.body.style.overflow = 'hidden';
     }
 
@@ -153,8 +152,6 @@ export default function CartPage() {
           </div>
         </div>
       </div>
-
-      {/* Modal de Confirmação para Limpar Carrinho */}
       {showClearModal && (
         <div 
           className="modal show d-block" 

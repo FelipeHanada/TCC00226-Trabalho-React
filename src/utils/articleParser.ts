@@ -1,5 +1,3 @@
-// Utility functions para processar conteúdo Markdown dos artigos
-
 export const parseArticleContent = (contentMD: string) => {
   const lines = contentMD.split('\n');
   const result = {
@@ -14,7 +12,6 @@ export const parseArticleContent = (contentMD: string) => {
   for (const line of lines) {
     const trimmedLine = line.trim();
     
-    // Detectar seções
     if (trimmedLine.toLowerCase().includes('ingredientes')) {
       inIngredients = true;
       inInstructions = false;
@@ -26,7 +23,6 @@ export const parseArticleContent = (contentMD: string) => {
         trimmedLine.toLowerCase().includes('instruções')) {
       inInstructions = true;
       inIngredients = false;
-      // Se há um grupo de ingredientes em andamento, adicionar
       if (currentIngredientGroup.title && currentIngredientGroup.items.length > 0) {
         result.ingredients.push({ ...currentIngredientGroup });
         currentIngredientGroup = { title: '', items: [] };
@@ -34,10 +30,8 @@ export const parseArticleContent = (contentMD: string) => {
       continue;
     }
 
-    // Processar ingredientes
     if (inIngredients) {
       if (trimmedLine.startsWith('###') || trimmedLine.startsWith('**')) {
-        // Novo grupo de ingredientes
         if (currentIngredientGroup.title && currentIngredientGroup.items.length > 0) {
           result.ingredients.push({ ...currentIngredientGroup });
         }
@@ -46,15 +40,12 @@ export const parseArticleContent = (contentMD: string) => {
           items: []
         };
       } else if (trimmedLine.startsWith('-') || trimmedLine.startsWith('*')) {
-        // Item do ingrediente
         currentIngredientGroup.items.push(trimmedLine.replace(/^[-*]\s*/, ''));
       } else if (trimmedLine && !trimmedLine.startsWith('#')) {
-        // Linha de ingrediente sem marcação
         currentIngredientGroup.items.push(trimmedLine);
       }
     }
 
-    // Processar instruções
     if (inInstructions) {
       if (trimmedLine.startsWith('-') || trimmedLine.startsWith('*')) {
         result.instructions.push(trimmedLine.replace(/^[-*]\s*/, ''));
@@ -64,7 +55,6 @@ export const parseArticleContent = (contentMD: string) => {
     }
   }
 
-  // Adicionar o último grupo de ingredientes se houver
   if (currentIngredientGroup.title && currentIngredientGroup.items.length > 0) {
     result.ingredients.push({ ...currentIngredientGroup });
   }
