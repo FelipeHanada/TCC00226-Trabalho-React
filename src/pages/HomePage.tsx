@@ -10,6 +10,7 @@ import type { CarouselItem } from "../components/Carousel";
 import Carousel from "../components/Carousel";
 import Comment from "../components/Comment";
 import CommentForm from "../components/CommentForm";
+import Pagination from "../components/Pagination";
 import type { RecipeCardProps } from "../components/RecipeCard";
 import RecipeCard from "../components/RecipeCard";
 import RecipeSection from "../components/RecipeSectionProps";
@@ -73,7 +74,13 @@ export default function HomePage() {
     hasMore,
     isCreating,
     createError,
+    currentPage,
+    numberOfPages,
+    totalElements,
     loadMore,
+    goToPage,
+    nextPage,
+    previousPage,
     createComment,
   } = useArticleComments(currentArticle?.id);
 
@@ -155,16 +162,22 @@ export default function HomePage() {
             )}
 
             <div className="border px-4 py-3">
-              <h1 className="mb-3">Comentários</h1>
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <h1 className="mb-0">Comentários</h1>
+                {totalElements > 0 && (
+                  <small className="text-muted">
+                    {totalElements} comentário{totalElements !== 1 ? "s" : ""}{" "}
+                    encontrado{totalElements !== 1 ? "s" : ""}
+                  </small>
+                )}
+              </div>
 
-              {/* Formulário para adicionar comentário */}
               <CommentForm
                 onSubmit={createComment}
                 isSubmitting={isCreating}
                 submitError={createError}
               />
 
-              {/* Lista de comentários */}
               {commentsLoading ? (
                 <div className="text-center py-3">
                   <div className="spinner-border text-primary" role="status">
@@ -195,8 +208,32 @@ export default function HomePage() {
                     <Comment key={comment.id} comment={comment} />
                   ))}
 
-                  {/* Botão para carregar mais comentários */}
-                  {hasMore && (
+                  <div className="mt-4">
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                      <small className="text-muted">
+                        Página {currentPage + 1} de {numberOfPages} • Total:{" "}
+                        {totalElements} comentários
+                      </small>
+                    </div>
+
+                    {numberOfPages > 1 ? (
+                      <Pagination
+                        currentPage={currentPage}
+                        numberOfPages={numberOfPages}
+                        onPageChange={goToPage}
+                        loading={commentsLoading}
+                        maxVisiblePages={3}
+                      />
+                    ) : (
+                      <div className="text-center">
+                        <small className="text-muted">
+                          Paginação oculta: numberOfPages ({numberOfPages}) ≤ 1
+                        </small>
+                      </div>
+                    )}
+                  </div>
+
+                  {hasMore && numberOfPages <= 1 && (
                     <div className="text-center mt-3">
                       <button
                         type="button"
