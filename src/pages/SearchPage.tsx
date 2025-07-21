@@ -10,9 +10,8 @@ import Carousel, { type CarouselItem } from "../components/Carousel";
 import CategoryCard, {
   type CategoryCardProps,
 } from "../components/CategoryCard";
-import Footer from "../components/Footer";
-import ProfilePageNavbar from "../components/ProfilePageNavbar";
-import usePopularArticles from "../hooks/usePopularArticles";
+import Pagination from "../components/Pagination";
+import usePopularArticlesPaginated from "../hooks/usePopularArticlesPaginated";
 
 const carouselItems: CarouselItem[] = [
   {
@@ -39,7 +38,15 @@ const categories: CategoryCardProps[] = [
 ];
 
 export default function SearchPage() {
-  const { articles, loading, error } = usePopularArticles(6);
+  const {
+    articles,
+    loading,
+    error,
+    currentPage,
+    numberOfPages,
+    totalElements,
+    goToPage,
+  } = usePopularArticlesPaginated(6);
 
   return (
     <>
@@ -57,7 +64,15 @@ export default function SearchPage() {
         </section>
 
         <section className="container my-5">
-          <h2 className="mb-4">Receitas Populares</h2>
+          <div className="d-flex justify-content-between align-items-center mb-4">
+            <h2 className="mb-0">Receitas Populares</h2>
+            {totalElements > 0 && (
+              <small className="text-muted">
+                {totalElements} receita{totalElements !== 1 ? "s" : ""}{" "}
+                encontrada{totalElements !== 1 ? "s" : ""}
+              </small>
+            )}
+          </div>
           <div className="row g-4">
             {loading ? (
               <div className="col-12 text-center">
@@ -74,14 +89,44 @@ export default function SearchPage() {
                   <i className="bi bi-exclamation-triangle"></i> {error}
                 </div>
               </div>
-            ) : (
-              articles.map((article) => (
-                <div className="col-md-4" key={article.id}>
-                  <ApiArticleCard article={article} />
+            ) : articles.length === 0 ? (
+              <div className="col-12 text-center">
+                <div className="alert alert-info" role="alert">
+                  <i className="bi bi-info-circle"></i> Nenhuma receita
+                  encontrada.
                 </div>
-              ))
+              </div>
+            ) : (
+              <>
+                {articles.map((article) => (
+                  <div className="col-md-4" key={article.id}>
+                    <ApiArticleCard article={article} />
+                  </div>
+                ))}
+              </>
             )}
           </div>
+
+          {!loading && !error && articles.length > 0 && (
+            <div className="mt-4">
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <small className="text-muted">
+                  Página {currentPage + 1} de {numberOfPages} • Total:{" "}
+                  {totalElements} receitas
+                </small>
+              </div>
+
+              {numberOfPages > 1 && (
+                <Pagination
+                  currentPage={currentPage}
+                  numberOfPages={numberOfPages}
+                  onPageChange={goToPage}
+                  loading={loading}
+                  maxVisiblePages={5}
+                />
+              )}
+            </div>
+          )}
         </section>
       </main>
     </>
