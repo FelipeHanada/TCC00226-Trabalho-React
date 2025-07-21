@@ -66,7 +66,7 @@ export const useFavoritesStore = create<FavoritesState>()(
           set({ loading: true, error: null });
           
           const response = await axios.get<PageResult<BackendArticle>>(
-            `http://localhost:8080/article/favorite/${token}?page=0&pageSize=100`
+            `http://localhost:8080/article/favorite?page=0&pageSize=100&token=${token}`
           );
           
           const favorites: FavoriteItem[] = response.data.items.map(article => ({

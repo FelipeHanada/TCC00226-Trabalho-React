@@ -67,6 +67,16 @@ export default function ProfilePageNavbar() {
                   <i className="bi bi-book"></i> Receitas
                 </button>
 
+                {isAuthenticated && (
+                  <button
+                    className="btn btn-outline-success"
+                    onClick={() => navigate('/create-article')}
+                    title="Criar novo artigo"
+                  >
+                    <i className="bi bi-plus-circle"></i> Criar Artigo
+                  </button>
+                )}
+
                 <div className="dropdown">
                     <a className="btn btn-outline-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
@@ -82,6 +92,10 @@ export default function ProfilePageNavbar() {
                     {isAuthenticated && (
                       <li><Link className="dropdown-item" to="/favorites"><i className="bi bi-heart me-2"></i>Meus
                               Favoritos</Link></li>
+                    )}
+                    {isAuthenticated && (
+                      <li><Link className="dropdown-item" to="/create-article"><i className="bi bi-plus-circle me-2"></i>Criar
+                              Artigo</Link></li>
                     )}
                     <li><Link className="dropdown-item" to="/login"><i className="fa-solid fa-user me-2"></i>Login</Link>
                     </li>

@@ -36,7 +36,7 @@ export default function useCurrentUser(): UseCurrentUserReturn {
         setLoading(true);
         setError(null);
 
-        const response = await axios.get(`http://localhost:8080/auth/user/${token}`, {
+        const response = await axios.get(`http://localhost:8080/auth/user?token=${token}`, {
           headers: {
             'Content-Type': 'application/json',
           },
@@ -45,7 +45,6 @@ export default function useCurrentUser(): UseCurrentUserReturn {
         const userData = response.data;
         setUser(userData);
         
-        // Atualizar o store com as informações completas do usuário
         setAuthUser({
           id: userData.id,
           email: userData.email,

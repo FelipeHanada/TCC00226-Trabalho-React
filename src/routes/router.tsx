@@ -3,6 +3,7 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import PublicRoute from "../components/PublicRoute";
 import ArticlesPage from "../pages/ArticlesPage";
 import CartPage from "../pages/CartPage";
+import CreateArticlePage from "../pages/CreateArticlePage";
 import FavoritesPage from "../pages/FavoritesPage";
 import HomePage from "../pages/HomePage";
 import LoginPage from "../pages/LoginPage";
@@ -49,6 +50,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <FavoritesPage />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: "create-article",
+        element: (
+          <ProtectedRoute>
+            <CreateArticlePage />
           </ProtectedRoute>
         )
       }
