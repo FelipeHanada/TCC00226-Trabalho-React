@@ -30,7 +30,7 @@ const router = createBrowserRouter([
         )
       },
       {
-        path: "articles",
+        path: "home",
         element: (
           <ProtectedRoute>
             <ArticlesPage />

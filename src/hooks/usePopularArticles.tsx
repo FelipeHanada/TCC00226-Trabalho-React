@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import type { Article } from '../interfaces/Article';
 
 interface Author {
   id: number;
@@ -8,15 +9,6 @@ interface Author {
   email: string;
   phoneNumber: string;
   aboutMe: string;
-}
-
-interface Article {
-  id: number;
-  title: string;
-  description: string;
-  cardImage: string;
-  contentMD: string;
-  author: Author;
 }
 
 interface PageResult<T> {
@@ -74,3 +66,4 @@ const usePopularArticles = (pageSize: number = 6): UsePopularArticlesReturn => {
 
 export default usePopularArticles;
 export type { Article, Author };
+

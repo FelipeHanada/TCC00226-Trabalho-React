@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { Article } from '../hooks/usePopularArticles';
+import type { Article } from '../interfaces/Article';
 import { useAuthStore } from '../store/authStore';
 import { useCartStore } from '../store/cartStore';
 import { useFavoritesStore } from '../store/favoritesStore';
+import { convertPrice, formatPrice } from '../utils/priceUtils';
 
 interface ApiArticleCardProps {
   article: Article;
@@ -22,8 +23,8 @@ export default function ApiArticleCard({ article }: ApiArticleCardProps) {
   const [showAddedToCart, setShowAddedToCart] = useState(false);
   
   const isFavorite = checkIsFavorite(article.id);
-  const authorInitials = getInitials(article.author.firstName, article.author.lastName);
-  const authorName = `${article.author.firstName} ${article.author.lastName}`;
+  const authorInitials = getInitials(article.author.firstName || '', article.author.lastName || '');
+  const authorName = article.author.name || `${article.author.firstName} ${article.author.lastName}`;
 
   const handleCardClick = () => {
     navigate(`/?article=${article.id}`);
@@ -36,8 +37,8 @@ export default function ApiArticleCard({ article }: ApiArticleCardProps) {
       id: article.id.toString(),
       title: article.title,
       author: authorName,
-      image: article.cardImage,
-      price: 29.99
+      image: article.cardImage!,
+      price: convertPrice(article.price)
     });
     
     setShowAddedToCart(true);
@@ -63,11 +64,11 @@ export default function ApiArticleCard({ article }: ApiArticleCardProps) {
           id: article.id,
           title: article.title,
           description: article.description,
-          cardImage: article.cardImage,
+          cardImage: article.cardImage!,
           author: {
             id: article.author.id,
-            firstName: article.author.firstName,
-            lastName: article.author.lastName
+            firstName: article.author.firstName!,
+            lastName: article.author.lastName!
           }
         }, token);
       }
@@ -129,7 +130,7 @@ export default function ApiArticleCard({ article }: ApiArticleCardProps) {
           <small className="text-muted">Por {authorName}</small>
         </div>
         <div className="d-flex justify-content-between align-items-center">
-          <span className="h5 text-success mb-0">R$ 29,99</span>
+          <span className="h5 text-success mb-0">R$ {formatPrice(article.price)}</span>
           <button
             className={`btn btn-sm ${showAddedToCart ? 'btn-success' : 'btn-primary'}`}
             onClick={handleAddToCart}

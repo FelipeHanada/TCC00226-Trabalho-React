@@ -16,7 +16,7 @@ export default function AboutInfoProfileCard({ user, onUserUpdate }: AboutInfoPr
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { setUser: setAuthUser } = useAuthStore();
+  const { setUser: setAuthUser, token } = useAuthStore();
 
   // Hook para gerenciar artigos do usuário
   const {
@@ -66,7 +66,7 @@ export default function AboutInfoProfileCard({ user, onUserUpdate }: AboutInfoPr
   };
 
   const handleSaveDescription = async () => {
-    if (!user) return;
+    if (!user || !token) return;
 
     try {
       setIsSaving(true);
@@ -80,6 +80,7 @@ export default function AboutInfoProfileCard({ user, onUserUpdate }: AboutInfoPr
       const response = await axios.patch('http://localhost:8080/user', updatedUser, {
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
         },
       });
 

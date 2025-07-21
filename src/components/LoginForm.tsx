@@ -35,7 +35,7 @@ export default function LoginForm() {
   useEffect(() => {
     if (efetuarLogin.isSuccess) {
       reset();
-      navigate('/articles');
+      navigate('/home');
     }
   }, [efetuarLogin.isSuccess, reset, navigate]);
 

@@ -1,23 +1,6 @@
 import ReactMarkdown from 'react-markdown';
-
-interface Author {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-  aboutMe: string;
-}
-
-interface Article {
-  id: number;
-  title?: string;
-  description?: string;
-  cardImage?: string;
-  contentMD?: string;
-  publishedAt?: string;
-  author?: Author;
-}
+import type { Article } from '../interfaces/Article';
+import { formatPrice } from '../utils/priceUtils';
 
 interface RecipeSectionProps {
   article?: Article;
@@ -33,7 +16,7 @@ export default function RecipeSection({ article }: RecipeSectionProps) {
   }
 
   const authorName = article.author 
-    ? `${article.author.firstName} ${article.author.lastName}` 
+    ? (article.author.name || `${article.author.firstName} ${article.author.lastName}`)
     : "Autor Desconhecido";
   const formatPublishedDate = (publishedAt?: string) => {
     if (!publishedAt) return "Publicado recentemente";
@@ -60,15 +43,23 @@ export default function RecipeSection({ article }: RecipeSectionProps) {
     >
       <h1>{article.title || "Título não disponível"}</h1>
 
-      <div className="d-flex justify-content-between">
-        <p className="text-muted">
-          <i className="bi bi-person-circle me-1"></i>
-          {authorName}
-        </p>
-        <p className="text-muted">
-          <i className="bi bi-calendar3 me-1"></i>
-          {formatPublishedDate(article.publishedAt)}
-        </p>
+      <div className="d-flex justify-content-between align-items-center">
+        <div>
+          <p className="text-muted mb-1">
+            <i className="bi bi-person-circle me-1"></i>
+            {authorName}
+          </p>
+          <p className="text-muted mb-0">
+            <i className="bi bi-calendar3 me-1"></i>
+            {formatPublishedDate(article.publishedAt)}
+          </p>
+        </div>
+        <div className="text-end">
+          <span className="badge bg-success fs-6 px-3 py-2">
+            <i className="bi bi-currency-dollar me-1"></i>
+            R$ {article.price ? formatPrice(article.price) : '0.00'}
+          </span>
+        </div>
       </div>
 
       <div className="d-flex justify-content-center mb-3">

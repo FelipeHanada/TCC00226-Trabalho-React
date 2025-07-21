@@ -36,9 +36,10 @@ export default function useCurrentUser(): UseCurrentUserReturn {
         setLoading(true);
         setError(null);
 
-        const response = await axios.get(`http://localhost:8080/auth/user?token=${token}`, {
+        const response = await axios.get(`http://localhost:8080/auth/user`, {
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `${token}`,
           },
         });
 
@@ -75,9 +76,10 @@ export default function useCurrentUser(): UseCurrentUserReturn {
         setLoading(true);
         setError(null);
         
-        const response = await axios.get(`http://localhost:8080/auth/user/${token}`, {
+        const response = await axios.get(`http://localhost:8080/auth/user`, {
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `${token}`,
           },
         });
 

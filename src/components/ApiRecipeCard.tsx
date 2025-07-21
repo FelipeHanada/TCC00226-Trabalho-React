@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { Article } from '../hooks/usePopularArticles';
+import type { Article } from '../interfaces/Article';
 import { useCartStore } from '../store/cartStore';
+import { convertPrice, formatPrice } from '../utils/priceUtils';
 
 interface ApiRecipeCardProps {
   article: Article;
@@ -22,9 +23,9 @@ export default function ApiRecipeCard({ article }: ApiRecipeCardProps) {
     addItem({
       id: article.id.toString(),
       title: article.title,
-      author: `${article.author.firstName} ${article.author.lastName}`,
-      image: article.cardImage,
-      price: 29.99
+      author: article.author.name || `${article.author.firstName} ${article.author.lastName}`,
+      image: article.cardImage!,
+      price: convertPrice(article.price)
     });
     
     setShowAddedToCart(true);
@@ -48,7 +49,7 @@ export default function ApiRecipeCard({ article }: ApiRecipeCardProps) {
           }
         </p>
         <div className="d-flex justify-content-between align-items-center mt-2">
-          <small className="text-success fw-bold">R$ 29,99</small>
+          <small className="text-success fw-bold">R$ {formatPrice(article.price)}</small>
           <button
             className={`btn btn-sm ${showAddedToCart ? 'btn-success' : 'btn-primary'}`}
             onClick={handleAddToCart}

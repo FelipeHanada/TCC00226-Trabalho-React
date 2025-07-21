@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom'
-import bananaImg from '../assets/images/banana.jpg'
 import cookieImg from '../assets/images/cookie.png'
 import pudimImg from '../assets/images/pudim.png'
 import slide1Img from '../assets/images/slide1.png'
@@ -10,10 +9,12 @@ import Breadcrumb from '../components/Breadcumb'
 import type { CarouselItem } from '../components/Carousel'
 import Carousel from '../components/Carousel'
 import Comment from '../components/Comment'
+import CommentForm from '../components/CommentForm'
 import type { RecipeCardProps } from '../components/RecipeCard'
 import RecipeCard from '../components/RecipeCard'
 import RecipeSection from '../components/RecipeSectionProps'
 import RecipeSidebarNav from '../components/RecipeSideBarNav'
+import useArticleComments from '../hooks/useArticleComments'
 import useHomeArticle from '../hooks/useHomeArticle'
 import { useAuthStore } from '../store/authStore'
 
@@ -46,61 +47,6 @@ const navItems = [
   { label: 'Receita Completa', href: '#conteudo' },
 ]
 
-const comments = [
-  {
-    userImage: bananaImg,
-    username: 'Camila Dias',
-    publishedAt: '10/04/2025 às 23:12',
-    content: 'Nunca pensei que fosse tão fácil fazer uma torta de morango. Com certeza farei de novo!',
-    replies: [
-      {
-        userImage: bananaImg,
-        username: 'Camila Dias',
-        publishedAt: '10/04/2025 às 23:12',
-        content: 'Nunca pensei que fosse tão fácil fazer uma torta de morango. Com certeza farei de novo!',
-        replies: [],
-      },
-    ],
-  },
-  {
-    userImage: bananaImg,
-    username: 'Camila Dias',
-    publishedAt: '10/04/2025 às 23:12',
-    content: 'Nunca pensei que fosse tão fácil fazer uma torta de morango. Com certeza farei de novo!',
-    replies: [
-      {
-        userImage: bananaImg,
-        username: 'Camila Dias',
-        publishedAt: '10/04/2025 às 23:12',
-        content: 'Nunca pensei que fosse tão fácil fazer uma torta de morango. Com certeza farei de novo!',
-        replies: [
-          {
-            userImage: bananaImg,
-            username: 'Camila Dias',
-            publishedAt: '10/04/2025 às 23:12',
-            content: 'Nunca pensei que fosse tão fácil fazer uma torta de morango. Com certeza farei de novo!',
-            replies: [],
-          },
-        ],
-      },
-      {
-        userImage: bananaImg,
-        username: 'Camila Dias',
-        publishedAt: '10/04/2025 às 23:12',
-        content: 'Nunca pensei que fosse tão fácil fazer uma torta de morango. Com certeza farei de novo!',
-        replies: [],
-      },
-    ],
-  },
-  {
-    userImage: bananaImg,
-    username: 'Camila Dias',
-    publishedAt: '10/04/2025 às 23:12',
-    content: 'Nunca pensei que fosse tão fácil fazer uma torta de morango. Com certeza farei de novo!',
-    replies: [],
-  },
-]
-
 const sideRecipes: RecipeCardProps[] = [
   {
     image: pudimImg,
@@ -120,6 +66,16 @@ export default function HomePage() {
   const navigate = useNavigate()
   const { isAuthenticated } = useAuthStore()
   const { currentArticle, sideArticles, loading, error } = useHomeArticle()
+  const { 
+    comments, 
+    loading: commentsLoading, 
+    error: commentsError,
+    hasMore,
+    isCreating,
+    createError,
+    loadMore,
+    createComment
+  } = useArticleComments(currentArticle?.id)
 
   return (
     <>
@@ -133,7 +89,7 @@ export default function HomePage() {
             </div>
             <button 
               className="btn btn-primary btn-lg"
-              onClick={() => navigate('/articles')}
+              onClick={() => navigate('/home')}
             >
               <i className="bi bi-book"></i> Ver Receitas
             </button>
@@ -185,9 +141,69 @@ export default function HomePage() {
 
             <div className="border px-4 py-3">
               <h1 className="mb-3">Comentários</h1>
-              {comments.map((comment, index) => (
-                <Comment key={index} {...comment} />
-              ))}
+              
+              {/* Formulário para adicionar comentário */}
+              <CommentForm 
+                onSubmit={createComment}
+                isSubmitting={isCreating}
+                submitError={createError}
+              />
+
+              {/* Lista de comentários */}
+              {commentsLoading ? (
+                <div className="text-center py-3">
+                  <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Carregando comentários...</span>
+                  </div>
+                  <p className="mt-2 text-muted">Carregando comentários...</p>
+                </div>
+              ) : commentsError ? (
+                <div className="alert alert-warning" role="alert">
+                  <i className="bi bi-exclamation-triangle"></i> {commentsError}
+                </div>
+              ) : comments.length === 0 ? (
+                <div className="text-center text-muted py-4">
+                  <i className="bi bi-chat-dots" style={{ fontSize: '2rem', opacity: 0.5 }}></i>
+                  <p className="mt-2 mb-0">
+                    Ainda não há comentários neste artigo.
+                  </p>
+                  <small>
+                    Seja o primeiro a compartilhar sua opinião!
+                  </small>
+                </div>
+              ) : (
+                <>
+                  {comments.map((comment) => (
+                    <Comment key={comment.id} comment={comment} />
+                  ))}
+                  
+                  {/* Botão para carregar mais comentários */}
+                  {hasMore && (
+                    <div className="text-center mt-3">
+                      <button
+                        type="button"
+                        className="btn btn-outline-primary"
+                        onClick={loadMore}
+                        disabled={commentsLoading}
+                      >
+                        {commentsLoading ? (
+                          <>
+                            <div className="spinner-border spinner-border-sm me-2" role="status">
+                              <span className="visually-hidden">Carregando...</span>
+                            </div>
+                            Carregando...
+                          </>
+                        ) : (
+                          <>
+                            <i className="bi bi-arrow-down-circle me-2"></i>
+                            Carregar mais comentários
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
 
           </div>

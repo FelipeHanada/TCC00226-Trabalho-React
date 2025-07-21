@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useCartStore } from '../store/cartStore';
 import { useFavoritesStore } from '../store/favoritesStore';
+import { convertPrice } from '../utils/priceUtils';
 
 interface FavoriteItem {
   id: number;
@@ -57,12 +58,15 @@ export default function FavoritesPage() {
   };
 
   const handleAddToCart = (favorite: FavoriteItem) => {
+    // Valor padrão até que a API de favoritos seja atualizada com o campo price
+    const estimatedPriceInCents = 2999; // R$ 29,99 em centavos
+    
     addItem({
       id: favorite.id.toString(),
       title: favorite.title,
       author: `${favorite.author.firstName} ${favorite.author.lastName}`,
       image: favorite.cardImage,
-      price: 29.99
+      price: convertPrice(estimatedPriceInCents)
     });
   };
 
@@ -214,7 +218,7 @@ export default function FavoritesPage() {
             </div>
             <button 
               className="btn btn-primary mt-3"
-              onClick={() => navigate('/articles')}
+              onClick={() => navigate('/home')}
             >
               <i className="bi bi-book"></i> Explorar Receitas
             </button>
@@ -329,7 +333,7 @@ export default function FavoritesPage() {
                   <div className="d-flex gap-2">
                     <button 
                       className="btn btn-primary"
-                      onClick={() => navigate('/articles')}
+                      onClick={() => navigate('/home')}
                     >
                       <i className="bi bi-plus-circle"></i> Adicionar mais receitas
                     </button>

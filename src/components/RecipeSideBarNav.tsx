@@ -34,7 +34,6 @@ export default function RecipeSidebarNav({
           </ul>
         </div>
       </nav>
-      <Alert message="Isso é um ScrollSpy." />
     </div>
   )
 }

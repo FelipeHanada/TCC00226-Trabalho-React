@@ -1,30 +1,35 @@
 import { useState } from "react"
+import type { ArticleComment } from '../interfaces/ArticleComment'
 
 export interface CommentProps {
-  userImage: string
-  username: string
-  publishedAt: string
-  content: string
-  replies?: CommentProps[]
+  comment: ArticleComment;
 }
 
-export default function Comment({
-  userImage,
-  username,
-  publishedAt,
-  content,
-  replies = [],
-}: CommentProps) {
+export default function Comment({ comment }: CommentProps) {
   const [likes, setLikes] = useState(0)
   const [loves, setLoves] = useState(0)
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).replace(',', ' às');
+  };
 
   return (
     <div className="mb-3">
       <div className="d-flex justify-content-between align-items-center mb-1">
         <div>
-          <img className="comment-icon" src={userImage} alt="User" />
-          <span className="ms-2">{username}</span>
-          <span className="ms-2">Publicado em {publishedAt}</span>
+          <div className="comment-icon bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center me-2" 
+               style={{ width: '32px', height: '32px', fontSize: '14px' }}>
+            {comment.author.firstName.charAt(0).toUpperCase()}
+          </div>
+          <span className="ms-2 fw-semibold">{comment.author.firstName} {comment.author.lastName}</span>
+          <span className="ms-2 text-muted small">Publicado em {formatDate(comment.publishedAt)}</span>
         </div>
 
         <div className="d-flex align-items-center gap-4">
@@ -69,16 +74,11 @@ export default function Comment({
       </div>
 
       <div className="mb-3">
-        <p className="mb-2">{content}</p>
+        {comment.title && (
+          <h6 className="mb-2 fw-bold">{comment.title}</h6>
+        )}
+        <p className="mb-2">{comment.content}</p>
       </div>
-
-      {replies.length > 0 && (
-        <div className="border-start ps-4">
-          {replies.map((reply, index) => (
-            <Comment key={index} {...reply} />
-          ))}
-        </div>
-      )}
     </div>
   )
 }

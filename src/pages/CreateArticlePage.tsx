@@ -3,16 +3,18 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useCurrentUser from '../hooks/useCurrentUser';
 import { useAuthStore } from '../store/authStore';
+import { formatPrice } from '../utils/priceUtils';
 
 interface CreateArticleData {
   title: string;
   description: string;
   cardImage: string;
   contentMD: string;
+  price: string;
 }
 
 export default function CreateArticlePage() {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, token } = useAuthStore();
   const { user, loading: userLoading } = useCurrentUser();
   const navigate = useNavigate();
 
@@ -20,7 +22,8 @@ export default function CreateArticlePage() {
     title: '',
     description: '',
     cardImage: '',
-    contentMD: ''
+    contentMD: '',
+    price: ''
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -98,6 +101,16 @@ export default function CreateArticlePage() {
       return;
     }
 
+    if (!formData.price.trim() || isNaN(parseFloat(formData.price)) || parseFloat(formData.price) < 0) {
+      setSubmitError('O preço deve ser um número válido maior ou igual a zero');
+      return;
+    }
+
+    if (!user || !token) {
+      setSubmitError('Usuário não autenticado');
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       setSubmitError(null);
@@ -107,6 +120,7 @@ export default function CreateArticlePage() {
         description: formData.description.trim(),
         cardImage: formData.cardImage.trim() || null,
         contentMD: formData.contentMD.trim(),
+        price: Math.floor(parseFloat(formData.price) * 100), // Converter para centavos
         author: {
           id: user.id
         }
@@ -115,6 +129,7 @@ export default function CreateArticlePage() {
       await axios.post('http://localhost:8080/article', articlePayload, {
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
         },
       });
 
@@ -248,6 +263,29 @@ export default function CreateArticlePage() {
                       </div>
                     </div>
 
+                    {/* Preço */}
+                    <div className="mb-3">
+                      <label htmlFor="price" className="form-label">
+                        Preço (R$) <span className="text-danger">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        className="form-control"
+                        id="price"
+                        name="price"
+                        value={formData.price}
+                        onChange={handleInputChange}
+                        placeholder="0.00"
+                        min="0"
+                        step="0.01"
+                        required
+                        disabled={isSubmitting}
+                      />
+                      <div className="form-text">
+                        Valor em reais para o artigo
+                      </div>
+                    </div>
+
                     {/* Conteúdo Markdown */}
                     <div className="mb-3">
                       <label htmlFor="contentMD" className="form-label">
@@ -318,9 +356,16 @@ export default function CreateArticlePage() {
                     <h6 className="fw-bold text-truncate">
                       {formData.title || 'Título do artigo'}
                     </h6>
-                    <p className="text-muted small mb-2">
-                      Por: {user.firstName} {user.lastName}
-                    </p>
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                      <p className="text-muted small mb-0">
+                        Por: {user.firstName} {user.lastName}
+                      </p>
+                      {formData.price && (
+                        <span className="badge bg-primary">
+                          R$ {formatPrice(Math.floor(parseFloat(formData.price) * 100))}
+                        </span>
+                      )}
+                    </div>
                     {formData.cardImage && (
                       <img 
                         src={formData.cardImage} 

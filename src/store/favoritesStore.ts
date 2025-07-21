@@ -66,7 +66,12 @@ export const useFavoritesStore = create<FavoritesState>()(
           set({ loading: true, error: null });
           
           const response = await axios.get<PageResult<BackendArticle>>(
-            `http://localhost:8080/article/favorite?page=0&pageSize=100&token=${token}`
+            `http://localhost:8080/article/favorite?page=0&pageSize=100`,
+            {
+              headers: {
+                Authorization: `${token}`
+              }
+            }
           );
           
           const favorites: FavoriteItem[] = response.data.items.map(article => ({
@@ -96,7 +101,13 @@ export const useFavoritesStore = create<FavoritesState>()(
           set({ error: null });
           
           await axios.post(
-            `http://localhost:8080/article/favorite/${item.id}?token=${token}`
+            `http://localhost:8080/article/favorite/${item.id}`,
+            {},
+            {
+              headers: {
+                Authorization: `${token}`
+              }
+            }
           );
           
           const { favorites } = get();
@@ -117,7 +128,12 @@ export const useFavoritesStore = create<FavoritesState>()(
           set({ error: null });
           
           await axios.delete(
-            `http://localhost:8080/article/favorite/${id}?token=${token}`
+            `http://localhost:8080/article/favorite/${id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            }
           );
           
           const { favorites } = get();

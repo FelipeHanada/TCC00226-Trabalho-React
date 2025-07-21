@@ -92,7 +92,25 @@ const useEfetuarLogin = (): UseEfetuarLoginReturn => {
       }
     } catch (err) {
       setIsError(true);
-      const errorObj = err instanceof Error ? err : new Error('Erro de autenticação');
+      
+      let errorMessage = 'Não foi possível fazer login';
+      
+      if (axios.isAxiosError(err) && err.response) {
+        const status = err.response.status;
+        if (status === 404) {
+          errorMessage = 'Não foi possível fazer login. Verifique suas credenciais.';
+        } else if (status === 401) {
+          errorMessage = 'E-mail ou senha incorretos.';
+        } else if (status >= 500) {
+          errorMessage = 'Erro interno do servidor. Tente novamente mais tarde.';
+        } else if (err.response.data?.message) {
+          errorMessage = err.response.data.message;
+        }
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+      
+      const errorObj = new Error(errorMessage);
       setError(errorObj);
       throw errorObj;
     } finally {

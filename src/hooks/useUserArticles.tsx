@@ -1,25 +1,9 @@
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import type { Article, EditFormData } from '../interfaces/Article';
 import type { User } from '../store/authStore';
-
-interface Article {
-  id: number;
-  title: string;
-  description: string;
-  cardImage?: string;
-  contentMD: string;
-  publishedAt: string;
-  author: {
-    id: number;
-  };
-}
-
-interface EditFormData {
-  title: string;
-  description: string;
-  cardImage: string;
-  contentMD: string;
-}
+import { useAuthStore } from '../store/authStore';
+import { convertPrice } from '../utils/priceUtils';
 
 interface UseUserArticlesReturn {
   articles: Article[];
@@ -48,6 +32,8 @@ interface UseUserArticlesReturn {
 }
 
 export default function useUserArticles(user?: User): UseUserArticlesReturn {
+  const { token } = useAuthStore();
+  
   // Estados dos artigos
   const [articles, setArticles] = useState<Article[]>([]);
   const [articlesLoading, setArticlesLoading] = useState(true);
@@ -60,7 +46,8 @@ export default function useUserArticles(user?: User): UseUserArticlesReturn {
     title: '',
     description: '',
     cardImage: '',
-    contentMD: ''
+    contentMD: '',
+    price: ''
   });
   const [isUpdating, setIsUpdating] = useState(false);
   const [updateError, setUpdateError] = useState<string | null>(null);
@@ -72,7 +59,7 @@ export default function useUserArticles(user?: User): UseUserArticlesReturn {
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
   // Função para buscar artigos do usuário
-  const fetchUserArticles = async () => {
+  const fetchUserArticles = useCallback(async () => {
     if (!user?.id) return;
 
     try {
@@ -91,7 +78,7 @@ export default function useUserArticles(user?: User): UseUserArticlesReturn {
     } finally {
       setArticlesLoading(false);
     }
-  };
+  }, [user?.id]);
 
   // Função para recarregar artigos (para uso externo)
   const refetchArticles = () => {
@@ -101,7 +88,7 @@ export default function useUserArticles(user?: User): UseUserArticlesReturn {
   // Carregar artigos quando o usuário mudar
   useEffect(() => {
     fetchUserArticles();
-  }, [user?.id]);
+  }, [fetchUserArticles]);
 
   // Função para abrir modal de edição
   const handleEditArticle = (article: Article) => {
@@ -110,7 +97,8 @@ export default function useUserArticles(user?: User): UseUserArticlesReturn {
       title: article.title,
       description: article.description,
       cardImage: article.cardImage || '',
-      contentMD: article.contentMD
+      contentMD: article.contentMD,
+      price: convertPrice(article.price).toString()
     });
     setUpdateError(null);
     setShowEditModal(true);
@@ -118,7 +106,7 @@ export default function useUserArticles(user?: User): UseUserArticlesReturn {
 
   // Função para atualizar artigo
   const handleUpdateArticle = async () => {
-    if (!editingArticle || !user) return;
+    if (!editingArticle || !user || !token) return;
 
     try {
       setIsUpdating(true);
@@ -130,14 +118,17 @@ export default function useUserArticles(user?: User): UseUserArticlesReturn {
         description: editFormData.description.trim(),
         cardImage: editFormData.cardImage.trim() || null,
         contentMD: editFormData.contentMD.trim(),
+        price: Math.floor(parseFloat(editFormData.price) * 100) || 0,
         author: {
           id: user.id
         }
       };
 
+
       await axios.patch(`http://localhost:8080/article`, updatedArticle, {
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `${token}`
         },
       });
 
@@ -167,13 +158,17 @@ export default function useUserArticles(user?: User): UseUserArticlesReturn {
 
   // Função para confirmar deleção
   const confirmDeleteArticle = async () => {
-    if (!articleToDelete || !user) return;
+    if (!articleToDelete || !user || !token) return;
 
     try {
       setIsDeleting(true);
       setDeleteError(null);
 
-      await axios.delete(`http://localhost:8080/article/${articleToDelete.id}`);
+      await axios.delete(`http://localhost:8080/article/${articleToDelete.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
 
       const response = await axios.get(`http://localhost:8080/article/author/${user.id}`);
       setArticles(response.data.items);

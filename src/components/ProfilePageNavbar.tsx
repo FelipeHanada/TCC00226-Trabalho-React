@@ -61,7 +61,7 @@ export default function ProfilePageNavbar() {
 
                 <button
                   className="btn btn-outline-secondary"
-                  onClick={() => navigate('/articles')}
+                  onClick={() => navigate('/home')}
                   title="Ver receitas"
                 >
                   <i className="bi bi-book"></i> Receitas

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import type { Article } from './usePopularArticles';
+import type { Article } from '../interfaces/Article';
 
 interface UseHomeArticleReturn {
   currentArticle: Article | null;
