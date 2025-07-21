@@ -1,5 +1,3 @@
-import Alert from "./Alert"
-
 interface NavItem {
   label: string
   href: string

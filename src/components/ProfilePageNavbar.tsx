@@ -64,7 +64,7 @@ export default function ProfilePageNavbar() {
                   onClick={() => navigate('/home')}
                   title="Ver receitas"
                 >
-                  <i className="bi bi-book"></i> Receitas
+                  <i className="bi bi-book"></i> Catálogo
                 </button>
 
                 {isAuthenticated && (
@@ -84,7 +84,7 @@ export default function ProfilePageNavbar() {
                     </a>
 
                 <ul className="dropdown-menu dropdown-menu-end">
-                    <li><Link className="dropdown-item" to="/"><i className="fa-solid fa-house me-2"></i>Página
+                    <li><Link className="dropdown-item" to="/search"><i className="fa-solid fa-house me-2"></i>Página
                             Principal</Link>
                     </li>
                     <li><Link className="dropdown-item" to="/profile"><i className="fa-solid fa-user me-2"></i>Meu

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Article } from '../interfaces/Article';
+import { useAuthStore } from '../store/authStore';
 import { useCartStore } from '../store/cartStore';
 import { convertPrice, formatPrice } from '../utils/priceUtils';
 
@@ -11,6 +12,7 @@ interface ApiRecipeCardProps {
 export default function ApiRecipeCard({ article }: ApiRecipeCardProps) {
   const navigate = useNavigate();
   const { addItem } = useCartStore();
+  const { user, token } = useAuthStore();
   const [showAddedToCart, setShowAddedToCart] = useState(false);
 
   const handleCardClick = () => {
@@ -50,14 +52,20 @@ export default function ApiRecipeCard({ article }: ApiRecipeCardProps) {
         </p>
         <div className="d-flex justify-content-between align-items-center mt-2">
           <small className="text-success fw-bold">R$ {formatPrice(article.price)}</small>
-          <button
-            className={`btn btn-sm ${showAddedToCart ? 'btn-success' : 'btn-primary'}`}
-            onClick={handleAddToCart}
-            title="Adicionar ao carrinho"
-            disabled={showAddedToCart}
-          >
-            <i className={`bi ${showAddedToCart ? 'bi-check-circle' : 'bi-cart-plus'}`}></i>
-          </button>
+          {user && token ? (
+            <button
+              className={`btn btn-sm ${showAddedToCart ? 'btn-success' : 'btn-primary'}`}
+              onClick={handleAddToCart}
+              title="Adicionar ao carrinho"
+              disabled={showAddedToCart}
+            >
+              <i className={`bi ${showAddedToCart ? 'bi-check-circle' : 'bi-cart-plus'}`}></i>
+            </button>
+          ) : (
+            <small className="text-muted" style={{ fontSize: '0.7rem' }}>
+              Login para comprar
+            </small>
+          )}
         </div>
       </div>
     </div>

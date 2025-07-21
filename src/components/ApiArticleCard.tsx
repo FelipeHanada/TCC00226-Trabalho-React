@@ -131,15 +131,22 @@ export default function ApiArticleCard({ article }: ApiArticleCardProps) {
         </div>
         <div className="d-flex justify-content-between align-items-center">
           <span className="h5 text-success mb-0">R$ {formatPrice(article.price)}</span>
-          <button
-            className={`btn btn-sm ${showAddedToCart ? 'btn-success' : 'btn-primary'}`}
-            onClick={handleAddToCart}
-            title="Adicionar ao carrinho"
-            disabled={showAddedToCart}
-          >
-            <i className={`bi ${showAddedToCart ? 'bi-check-circle' : 'bi-cart-plus'} me-1`}></i>
-            {showAddedToCart ? 'Adicionado!' : 'Adicionar'}
-          </button>
+          {user && token ? (
+            <button
+              className={`btn btn-sm ${showAddedToCart ? 'btn-success' : 'btn-primary'}`}
+              onClick={handleAddToCart}
+              title="Adicionar ao carrinho"
+              disabled={showAddedToCart}
+            >
+              <i className={`bi ${showAddedToCart ? 'bi-check-circle' : 'bi-cart-plus'} me-1`}></i>
+              {showAddedToCart ? 'Adicionado!' : 'Adicionar'}
+            </button>
+          ) : (
+            <small className="text-muted">
+              <i className="bi bi-info-circle me-1"></i>
+              Faça login para comprar
+            </small>
+          )}
         </div>
       </div>
     </div>
