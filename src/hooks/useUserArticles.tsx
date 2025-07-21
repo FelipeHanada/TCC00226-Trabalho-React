@@ -1,9 +1,9 @@
-import axios from 'axios';
-import { useCallback, useEffect, useState } from 'react';
-import type { Article, EditFormData } from '../interfaces/Article';
-import type { User } from '../store/authStore';
-import { useAuthStore } from '../store/authStore';
-import { convertPrice } from '../utils/priceUtils';
+import axios from "axios";
+import { useCallback, useEffect, useState } from "react";
+import type { Article, EditFormData } from "../interfaces/Article";
+import type { User } from "../store/authStore";
+import { useAuthStore } from "../store/authStore";
+import { convertPrice } from "../utils/priceUtils";
 
 interface UseUserArticlesReturn {
   articles: Article[];
@@ -26,14 +26,16 @@ interface UseUserArticlesReturn {
   handleUpdateArticle: () => Promise<void>;
   handleDeleteArticle: (article: Article) => void;
   confirmDeleteArticle: () => Promise<void>;
-  handleEditFormChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  handleEditFormChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
   setShowEditModal: (show: boolean) => void;
   setShowDeleteModal: (show: boolean) => void;
 }
 
 export default function useUserArticles(user?: User): UseUserArticlesReturn {
   const { token } = useAuthStore();
-  
+
   // Estados dos artigos
   const [articles, setArticles] = useState<Article[]>([]);
   const [articlesLoading, setArticlesLoading] = useState(true);
@@ -43,11 +45,11 @@ export default function useUserArticles(user?: User): UseUserArticlesReturn {
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editFormData, setEditFormData] = useState<EditFormData>({
-    title: '',
-    description: '',
-    cardImage: '',
-    contentMD: '',
-    price: ''
+    title: "",
+    description: "",
+    cardImage: "",
+    contentMD: "",
+    price: "",
   });
   const [isUpdating, setIsUpdating] = useState(false);
   const [updateError, setUpdateError] = useState<string | null>(null);
@@ -65,15 +67,19 @@ export default function useUserArticles(user?: User): UseUserArticlesReturn {
     try {
       setArticlesLoading(true);
       setArticlesError(null);
-      
-      const response = await axios.get(`http://localhost:8080/article/author/${user.id}`);
+
+      const response = await axios.get(
+        `http://localhost:8080/article/author/${user.id}`
+      );
       setArticles(response.data.items);
     } catch (error) {
-      console.error('Erro ao buscar artigos:', error);
+      console.error("Erro ao buscar artigos:", error);
       if (axios.isAxiosError(error)) {
-        setArticlesError(error.response?.data?.message || 'Erro ao carregar artigos');
+        setArticlesError(
+          error.response?.data?.message || "Erro ao carregar artigos"
+        );
       } else {
-        setArticlesError('Erro inesperado ao carregar artigos');
+        setArticlesError("Erro inesperado ao carregar artigos");
       }
     } finally {
       setArticlesLoading(false);
@@ -96,9 +102,9 @@ export default function useUserArticles(user?: User): UseUserArticlesReturn {
     setEditFormData({
       title: article.title,
       description: article.description,
-      cardImage: article.cardImage || '',
+      cardImage: article.cardImage || "",
       contentMD: article.contentMD,
-      price: convertPrice(article.price).toString()
+      price: convertPrice(article.price).toString(),
     });
     setUpdateError(null);
     setShowEditModal(true);
@@ -120,29 +126,32 @@ export default function useUserArticles(user?: User): UseUserArticlesReturn {
         contentMD: editFormData.contentMD.trim(),
         price: Math.floor(parseFloat(editFormData.price) * 100) || 0,
         author: {
-          id: user.id
-        }
+          id: user.id,
+        },
       };
-
 
       await axios.patch(`http://localhost:8080/article`, updatedArticle, {
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `${token}`
+          "Content-Type": "application/json",
+          Authorization: `${token}`,
         },
       });
 
-      const response = await axios.get(`http://localhost:8080/article/author/${user.id}`);
+      const response = await axios.get(
+        `http://localhost:8080/article/author/${user.id}`
+      );
       setArticles(response.data.items);
 
       setShowEditModal(false);
       setEditingArticle(null);
     } catch (error) {
-      console.error('Erro ao atualizar artigo:', error);
+      console.error("Erro ao atualizar artigo:", error);
       if (axios.isAxiosError(error)) {
-        setUpdateError(error.response?.data?.message || 'Erro ao atualizar artigo');
+        setUpdateError(
+          error.response?.data?.message || "Erro ao atualizar artigo"
+        );
       } else {
-        setUpdateError('Erro inesperado ao atualizar artigo');
+        setUpdateError("Erro inesperado ao atualizar artigo");
       }
     } finally {
       setIsUpdating(false);
@@ -164,13 +173,18 @@ export default function useUserArticles(user?: User): UseUserArticlesReturn {
       setIsDeleting(true);
       setDeleteError(null);
 
-      await axios.delete(`http://localhost:8080/article/${articleToDelete.id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
+      await axios.delete(
+        `http://localhost:8080/article/${articleToDelete.id}`,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
         }
-      });
+      );
 
-      const response = await axios.get(`http://localhost:8080/article/author/${user.id}`);
+      const response = await axios.get(
+        `http://localhost:8080/article/author/${user.id}`
+      );
       setArticles(response.data.items);
 
       // Fechar ambos os modais
@@ -179,11 +193,13 @@ export default function useUserArticles(user?: User): UseUserArticlesReturn {
       setArticleToDelete(null);
       setEditingArticle(null);
     } catch (error) {
-      console.error('Erro ao deletar artigo:', error);
+      console.error("Erro ao deletar artigo:", error);
       if (axios.isAxiosError(error)) {
-        setDeleteError(error.response?.data?.message || 'Erro ao deletar artigo');
+        setDeleteError(
+          error.response?.data?.message || "Erro ao deletar artigo"
+        );
       } else {
-        setDeleteError('Erro inesperado ao deletar artigo');
+        setDeleteError("Erro inesperado ao deletar artigo");
       }
     } finally {
       setIsDeleting(false);
@@ -191,11 +207,13 @@ export default function useUserArticles(user?: User): UseUserArticlesReturn {
   };
 
   // Função para gerenciar mudanças no formulário
-  const handleEditFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleEditFormChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setEditFormData(prev => ({
+    setEditFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 

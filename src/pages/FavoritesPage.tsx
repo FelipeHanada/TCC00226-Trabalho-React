@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../store/authStore';
-import { useCartStore } from '../store/cartStore';
-import { useFavoritesStore } from '../store/favoritesStore';
-import { convertPrice } from '../utils/priceUtils';
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../store/authStore";
+import { useCartStore } from "../store/cartStore";
+import { useFavoritesStore } from "../store/favoritesStore";
+import { convertPrice } from "../utils/priceUtils";
 
 interface FavoriteItem {
   id: number;
@@ -18,9 +18,22 @@ interface FavoriteItem {
 }
 
 export default function FavoritesPage() {
-  const { favorites, loading, error, loadFavorites, removeFromFavorites, clearFavorites } = useFavoritesStore();
+  const {
+    favorites,
+    loading,
+    error,
+    loadFavorites,
+    removeFromFavorites,
+    clearFavorites,
+  } = useFavoritesStore();
   const { isAuthenticated, token } = useAuthStore();
-  const { items: cartItems, getItemSubtotal, updateQuantity, addItem, removeItem } = useCartStore();
+  const {
+    items: cartItems,
+    getItemSubtotal,
+    updateQuantity,
+    addItem,
+    removeItem,
+  } = useCartStore();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,17 +44,17 @@ export default function FavoritesPage() {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate('/login');
+      navigate("/login");
     }
   }, [isAuthenticated, navigate]);
 
   const handleRemoveFavorite = async (id: number) => {
     if (!token) return;
-    
+
     try {
       await removeFromFavorites(id, token);
     } catch (error) {
-      console.error('Erro ao remover favorito:', error);
+      console.error("Erro ao remover favorito:", error);
     }
   };
 
@@ -50,23 +63,25 @@ export default function FavoritesPage() {
   };
 
   const getCartInfoForFavorite = (favoriteId: number) => {
-    const cartItem = cartItems.find(item => item.id === favoriteId.toString());
+    const cartItem = cartItems.find(
+      (item) => item.id === favoriteId.toString()
+    );
     return {
       quantity: cartItem?.quantity || 0,
-      subtotal: cartItem ? getItemSubtotal(cartItem.id) : 0
+      subtotal: cartItem ? getItemSubtotal(cartItem.id) : 0,
     };
   };
 
   const handleAddToCart = (favorite: FavoriteItem) => {
     // Valor padrão até que a API de favoritos seja atualizada com o campo price
     const estimatedPriceInCents = 2999; // R$ 29,99 em centavos
-    
+
     addItem({
       id: favorite.id.toString(),
       title: favorite.title,
       author: `${favorite.author.firstName} ${favorite.author.lastName}`,
       image: favorite.cardImage,
-      price: convertPrice(estimatedPriceInCents)
+      price: convertPrice(estimatedPriceInCents),
     });
   };
 
@@ -84,7 +99,9 @@ export default function FavoritesPage() {
 
   const QuantityInput = ({ favorite }: { favorite: FavoriteItem }) => {
     const cartInfo = getCartInfoForFavorite(favorite.id);
-    const [quantity, setQuantity] = useState<string>(cartInfo.quantity.toString());
+    const [quantity, setQuantity] = useState<string>(
+      cartInfo.quantity.toString()
+    );
     const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -98,20 +115,20 @@ export default function FavoritesPage() {
 
     const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
       const value = e.target.value.trim();
-      
-      if (value === '') {
+
+      if (value === "") {
         e.target.focus();
         return;
       }
-      
+
       if (parseInt(value) < 0 || isNaN(parseInt(value))) {
         setQuantity(cartInfo.quantity.toString());
         return;
       }
-      
+
       const numValue = parseInt(value);
       setQuantity(numValue.toString());
-      
+
       if (numValue === 0) {
         handleRemoveFromCart(favorite.id);
       } else {
@@ -124,19 +141,27 @@ export default function FavoritesPage() {
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
       const allowedKeys = [
-        'Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
-        'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
-        'Home', 'End'
+        "Backspace",
+        "Delete",
+        "Tab",
+        "Escape",
+        "Enter",
+        "ArrowLeft",
+        "ArrowRight",
+        "ArrowUp",
+        "ArrowDown",
+        "Home",
+        "End",
       ];
-      
+
       if (!allowedKeys.includes(e.key) && !/[0-9]/.test(e.key)) {
         e.preventDefault();
         return;
       }
-      
-      if (e.key === 'Enter') {
+
+      if (e.key === "Enter") {
         const value = e.currentTarget.value.trim();
-        if (value !== '') {
+        if (value !== "") {
           e.currentTarget.blur();
         }
       }
@@ -148,7 +173,7 @@ export default function FavoritesPage() {
           ref={inputRef}
           type="number"
           className="form-control text-center"
-          style={{ width: '80px' }}
+          style={{ width: "80px" }}
           value={quantity}
           onChange={handleChange}
           onBlur={handleBlur}
@@ -166,7 +191,10 @@ export default function FavoritesPage() {
   if (loading) {
     return (
       <div className="container mt-4">
-        <div className="d-flex align-items-center justify-content-center" style={{ minHeight: '60vh' }}>
+        <div
+          className="d-flex align-items-center justify-content-center"
+          style={{ minHeight: "60vh" }}
+        >
           <div className="text-center">
             <div className="spinner-border text-primary" role="status">
               <span className="visually-hidden">Carregando favoritos...</span>
@@ -194,10 +222,11 @@ export default function FavoritesPage() {
         <div className="col-12">
           <div className="d-flex justify-content-between align-items-center mb-4">
             <h2 className="fw-bold">
-              <i className="bi bi-heart-fill text-danger"></i> Lista de Favoritos
+              <i className="bi bi-heart-fill text-danger"></i> Lista de
+              Favoritos
             </h2>
             {favorites.length > 0 && (
-              <button 
+              <button
                 className="btn btn-outline-danger"
                 onClick={handleClearFavorites}
               >
@@ -216,9 +245,9 @@ export default function FavoritesPage() {
               <br />
               <small>Explore nossas receitas e adicione suas favoritas!</small>
             </div>
-            <button 
+            <button
               className="btn btn-primary mt-3"
-              onClick={() => navigate('/home')}
+              onClick={() => navigate("/home")}
             >
               <i className="bi bi-book"></i> Explorar Receitas
             </button>
@@ -262,10 +291,14 @@ export default function FavoritesPage() {
                         src={favorite.cardImage}
                         alt={favorite.title}
                         className="img-fluid rounded"
-                        style={{ maxWidth: '80px', maxHeight: '80px', objectFit: 'cover' }}
+                        style={{
+                          maxWidth: "80px",
+                          maxHeight: "80px",
+                          objectFit: "cover",
+                        }}
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          target.src = '/src/assets/images/pudim.png';
+                          target.src = "/src/assets/images/pudim.png";
                         }}
                       />
                     </div>
@@ -274,7 +307,9 @@ export default function FavoritesPage() {
                     </div>
                     <div className="col-md-2">
                       <p className="mb-0">
-                        <strong>{favorite.author.firstName} {favorite.author.lastName}</strong>
+                        <strong>
+                          {favorite.author.firstName} {favorite.author.lastName}
+                        </strong>
                       </p>
                       <small className="text-muted">Chef</small>
                     </div>
@@ -315,38 +350,54 @@ export default function FavoritesPage() {
                   <div className="row mb-3">
                     <div className="col-md-6">
                       <p className="card-text">
-                        <strong>Total de receitas favoritas:</strong> {favorites.length}
+                        <strong>Total de receitas favoritas:</strong>{" "}
+                        {favorites.length}
                       </p>
                       <p className="card-text">
-                        <strong>Favoritos no carrinho:</strong> {favorites.filter(fav => getCartInfoForFavorite(fav.id).quantity > 0).length}
+                        <strong>Favoritos no carrinho:</strong>{" "}
+                        {
+                          favorites.filter(
+                            (fav) => getCartInfoForFavorite(fav.id).quantity > 0
+                          ).length
+                        }
                       </p>
                     </div>
                     <div className="col-md-6">
                       <p className="card-text">
-                        <strong>Valor total dos favoritos no carrinho:</strong> 
+                        <strong>Valor total dos favoritos no carrinho:</strong>
                         <span className="text-success fw-bold ms-2">
-                          R$ {favorites.reduce((total, fav) => total + getCartInfoForFavorite(fav.id).subtotal, 0).toFixed(2)}
+                          R${" "}
+                          {favorites
+                            .reduce(
+                              (total, fav) =>
+                                total + getCartInfoForFavorite(fav.id).subtotal,
+                              0
+                            )
+                            .toFixed(2)}
                         </span>
                       </p>
                     </div>
                   </div>
                   <div className="d-flex gap-2">
-                    <button 
+                    <button
                       className="btn btn-primary"
-                      onClick={() => navigate('/home')}
+                      onClick={() => navigate("/home")}
                     >
-                      <i className="bi bi-plus-circle"></i> Adicionar mais receitas
+                      <i className="bi bi-plus-circle"></i> Adicionar mais
+                      receitas
                     </button>
-                    <button 
+                    <button
                       className="btn btn-outline-secondary"
-                      onClick={() => navigate('/')}
+                      onClick={() => navigate("/catalog")}
                     >
                       <i className="bi bi-house"></i> Voltar ao início
                     </button>
-                    {favorites.some(fav => getCartInfoForFavorite(fav.id).quantity > 0) && (
-                      <button 
+                    {favorites.some(
+                      (fav) => getCartInfoForFavorite(fav.id).quantity > 0
+                    ) && (
+                      <button
                         className="btn btn-success"
-                        onClick={() => navigate('/cart')}
+                        onClick={() => navigate("/cart")}
                       >
                         <i className="bi bi-cart"></i> Ver Carrinho
                       </button>

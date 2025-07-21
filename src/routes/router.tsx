@@ -18,8 +18,12 @@ const router = createBrowserRouter([
     element: <Layout />,
     children: [
       {
-        path: "",
-        element: <HomePage />
+        index: true,
+        element: <SearchPage />,
+      },
+      {
+        path: "article",
+        element: <HomePage />,
       },
       {
         path: "profile",
@@ -27,15 +31,15 @@ const router = createBrowserRouter([
           <ProtectedRoute>
             <ProfilePage />
           </ProtectedRoute>
-        )
+        ),
       },
       {
-        path: "home",
+        path: "catalog",
         element: (
           <ProtectedRoute>
             <ArticlesPage />
           </ProtectedRoute>
-        )
+        ),
       },
       {
         path: "cart",
@@ -43,7 +47,7 @@ const router = createBrowserRouter([
           <ProtectedRoute>
             <CartPage />
           </ProtectedRoute>
-        )
+        ),
       },
       {
         path: "favorites",
@@ -51,7 +55,7 @@ const router = createBrowserRouter([
           <ProtectedRoute>
             <FavoritesPage />
           </ProtectedRoute>
-        )
+        ),
       },
       {
         path: "create-article",
@@ -59,17 +63,13 @@ const router = createBrowserRouter([
           <ProtectedRoute>
             <CreateArticlePage />
           </ProtectedRoute>
-        )
-      }
-    ]
+        ),
+      },
+    ],
   },
   {
     path: "/login",
-    element: <LoginPage />
-  },
-  {
-    path: "/search",
-    element: <SearchPage />
+    element: <LoginPage />,
   },
   {
     path: "/register",
@@ -77,8 +77,8 @@ const router = createBrowserRouter([
       <PublicRoute>
         <RegisterPage />
       </PublicRoute>
-    )
-  }
-])
+    ),
+  },
+]);
 
 export default router;

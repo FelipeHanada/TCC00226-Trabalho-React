@@ -1,9 +1,9 @@
-import axios from 'axios';
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import useCurrentUser from '../hooks/useCurrentUser';
-import { useAuthStore } from '../store/authStore';
-import { formatPrice } from '../utils/priceUtils';
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import useCurrentUser from "../hooks/useCurrentUser";
+import { useAuthStore } from "../store/authStore";
+import { formatPrice } from "../utils/priceUtils";
 
 interface CreateArticleData {
   title: string;
@@ -19,11 +19,11 @@ export default function CreateArticlePage() {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState<CreateArticleData>({
-    title: '',
-    description: '',
-    cardImage: '',
-    contentMD: '',
-    price: ''
+    title: "",
+    description: "",
+    cardImage: "",
+    contentMD: "",
+    price: "",
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -32,7 +32,7 @@ export default function CreateArticlePage() {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate('/login');
+      navigate("/login");
     }
   }, [isAuthenticated, navigate]);
 
@@ -44,7 +44,10 @@ export default function CreateArticlePage() {
     return (
       <div className="container-fluid">
         <div className="row h-100 m-4 border rounded p-3">
-          <div className="col-12 d-flex justify-content-center align-items-center" style={{ minHeight: '400px' }}>
+          <div
+            className="col-12 d-flex justify-content-center align-items-center"
+            style={{ minHeight: "400px" }}
+          >
             <div className="text-center">
               <div className="spinner-border text-primary" role="status">
                 <span className="visually-hidden">Carregando...</span>
@@ -63,7 +66,8 @@ export default function CreateArticlePage() {
         <div className="row h-100 m-4 border rounded p-3">
           <div className="col-12">
             <div className="alert alert-danger" role="alert">
-              <i className="bi bi-exclamation-triangle"></i> Erro ao carregar dados do usuário
+              <i className="bi bi-exclamation-triangle"></i> Erro ao carregar
+              dados do usuário
             </div>
           </div>
         </div>
@@ -71,13 +75,15 @@ export default function CreateArticlePage() {
     );
   }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
-    
+
     if (submitError) {
       setSubmitError(null);
     }
@@ -85,29 +91,33 @@ export default function CreateArticlePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.title.trim()) {
-      setSubmitError('O título é obrigatório');
-      return;
-    }
-    
-    if (!formData.description.trim()) {
-      setSubmitError('A descrição é obrigatória');
-      return;
-    }
-    
-    if (!formData.contentMD.trim()) {
-      setSubmitError('O conteúdo é obrigatório');
+      setSubmitError("O título é obrigatório");
       return;
     }
 
-    if (!formData.price.trim() || isNaN(parseFloat(formData.price)) || parseFloat(formData.price) < 0) {
-      setSubmitError('O preço deve ser um número válido maior ou igual a zero');
+    if (!formData.description.trim()) {
+      setSubmitError("A descrição é obrigatória");
+      return;
+    }
+
+    if (!formData.contentMD.trim()) {
+      setSubmitError("O conteúdo é obrigatório");
+      return;
+    }
+
+    if (
+      !formData.price.trim() ||
+      isNaN(parseFloat(formData.price)) ||
+      parseFloat(formData.price) < 0
+    ) {
+      setSubmitError("O preço deve ser um número válido maior ou igual a zero");
       return;
     }
 
     if (!user || !token) {
-      setSubmitError('Usuário não autenticado');
+      setSubmitError("Usuário não autenticado");
       return;
     }
 
@@ -122,28 +132,27 @@ export default function CreateArticlePage() {
         contentMD: formData.contentMD.trim(),
         price: Math.floor(parseFloat(formData.price) * 100), // Converter para centavos
         author: {
-          id: user.id
-        }
+          id: user.id,
+        },
       };
 
-      await axios.post('http://localhost:8080/article', articlePayload, {
+      await axios.post("http://localhost:8080/article", articlePayload, {
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+          "Content-Type": "application/json",
+          Authorization: `${token}`,
         },
       });
 
       setSubmitSuccess(true);
       setTimeout(() => {
-        navigate('/');
+        navigate("/");
       }, 2000);
-
     } catch (error) {
-      console.error('Erro ao criar artigo:', error);
+      console.error("Erro ao criar artigo:", error);
       if (axios.isAxiosError(error)) {
-        setSubmitError(error.response?.data?.message || 'Erro ao criar artigo');
+        setSubmitError(error.response?.data?.message || "Erro ao criar artigo");
       } else {
-        setSubmitError('Erro inesperado ao criar artigo');
+        setSubmitError("Erro inesperado ao criar artigo");
       }
     } finally {
       setIsSubmitting(false);
@@ -154,10 +163,16 @@ export default function CreateArticlePage() {
     return (
       <div className="container-fluid">
         <div className="row h-100 m-4 border rounded p-3">
-          <div className="col-12 d-flex justify-content-center align-items-center" style={{ minHeight: '400px' }}>
+          <div
+            className="col-12 d-flex justify-content-center align-items-center"
+            style={{ minHeight: "400px" }}
+          >
             <div className="text-center">
               <div className="text-success mb-3">
-                <i className="bi bi-check-circle" style={{ fontSize: '3rem' }}></i>
+                <i
+                  className="bi bi-check-circle"
+                  style={{ fontSize: "3rem" }}
+                ></i>
               </div>
               <h4 className="text-success">Artigo criado com sucesso!</h4>
               <p className="text-muted">Redirecionando...</p>
@@ -177,8 +192,8 @@ export default function CreateArticlePage() {
               <i className="bi bi-file-earmark-text me-2"></i>
               Criar Novo Artigo
             </h2>
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="btn btn-outline-secondary"
               onClick={() => navigate(-1)}
               disabled={isSubmitting}
@@ -289,7 +304,8 @@ export default function CreateArticlePage() {
                     {/* Conteúdo Markdown */}
                     <div className="mb-3">
                       <label htmlFor="contentMD" className="form-label">
-                        Conteúdo (Markdown) <span className="text-danger">*</span>
+                        Conteúdo (Markdown){" "}
+                        <span className="text-danger">*</span>
                       </label>
                       <textarea
                         className="form-control"
@@ -301,10 +317,13 @@ export default function CreateArticlePage() {
                         placeholder="Escreva o conteúdo do artigo em Markdown..."
                         required
                         disabled={isSubmitting}
-                        style={{ fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace' }}
+                        style={{
+                          fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+                        }}
                       />
                       <div className="form-text">
-                        Use sintaxe Markdown para formatação. Ex: **negrito**, *itálico*, # Título
+                        Use sintaxe Markdown para formatação. Ex: **negrito**,
+                        *itálico*, # Título
                       </div>
                     </div>
 
@@ -325,8 +344,13 @@ export default function CreateArticlePage() {
                       >
                         {isSubmitting ? (
                           <>
-                            <div className="spinner-border spinner-border-sm me-2" role="status">
-                              <span className="visually-hidden">Criando...</span>
+                            <div
+                              className="spinner-border spinner-border-sm me-2"
+                              role="status"
+                            >
+                              <span className="visually-hidden">
+                                Criando...
+                              </span>
                             </div>
                             Criando Artigo...
                           </>
@@ -354,7 +378,7 @@ export default function CreateArticlePage() {
                 <div className="card-body">
                   <div className="border rounded p-3">
                     <h6 className="fw-bold text-truncate">
-                      {formData.title || 'Título do artigo'}
+                      {formData.title || "Título do artigo"}
                     </h6>
                     <div className="d-flex justify-content-between align-items-center mb-2">
                       <p className="text-muted small mb-0">
@@ -362,23 +386,31 @@ export default function CreateArticlePage() {
                       </p>
                       {formData.price && (
                         <span className="badge bg-primary">
-                          R$ {formatPrice(Math.floor(parseFloat(formData.price) * 100))}
+                          R${" "}
+                          {formatPrice(
+                            Math.floor(parseFloat(formData.price) * 100)
+                          )}
                         </span>
                       )}
                     </div>
                     {formData.cardImage && (
-                      <img 
-                        src={formData.cardImage} 
+                      <img
+                        src={formData.cardImage}
                         alt="Preview"
                         className="img-fluid rounded mb-2"
-                        style={{ maxHeight: '150px', width: '100%', objectFit: 'cover' }}
+                        style={{
+                          maxHeight: "150px",
+                          width: "100%",
+                          objectFit: "cover",
+                        }}
                         onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none';
+                          (e.target as HTMLImageElement).style.display = "none";
                         }}
                       />
                     )}
                     <p className="small text-muted">
-                      {formData.description || 'Descrição do artigo aparecerá aqui...'}
+                      {formData.description ||
+                        "Descrição do artigo aparecerá aqui..."}
                     </p>
                   </div>
                 </div>

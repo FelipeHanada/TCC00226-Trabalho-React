@@ -27,7 +27,7 @@ export default function ApiArticleCard({ article }: ApiArticleCardProps) {
   const authorName = article.author.name || `${article.author.firstName} ${article.author.lastName}`;
 
   const handleCardClick = () => {
-    navigate(`/?article=${article.id}`);
+    navigate(`/article?article=${article.id}`);
   };
 
   const handleAddToCart = (e: React.MouseEvent) => {

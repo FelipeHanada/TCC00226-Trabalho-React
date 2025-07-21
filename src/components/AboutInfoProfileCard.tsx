@@ -1,18 +1,21 @@
-import axios from 'axios';
-import { useEffect, useRef, useState } from 'react';
-import useUserArticles from '../hooks/useUserArticles';
-import type { User } from '../store/authStore';
-import { useAuthStore } from '../store/authStore';
+import axios from "axios";
+import { useEffect, useRef, useState } from "react";
+import useUserArticles from "../hooks/useUserArticles";
+import type { User } from "../store/authStore";
+import { useAuthStore } from "../store/authStore";
 
 interface AboutInfoProfileCardProps {
   user?: User;
   onUserUpdate?: (updatedUser: User) => void;
 }
 
-export default function AboutInfoProfileCard({ user, onUserUpdate }: AboutInfoProfileCardProps) {
+export default function AboutInfoProfileCard({
+  user,
+  onUserUpdate,
+}: AboutInfoProfileCardProps) {
   // Estados para edição da descrição
   const [isEditing, setIsEditing] = useState(false);
-  const [description, setDescription] = useState(user?.aboutMe || '');
+  const [description, setDescription] = useState(user?.aboutMe || "");
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -42,19 +45,22 @@ export default function AboutInfoProfileCard({ user, onUserUpdate }: AboutInfoPr
   } = useUserArticles(user);
 
   useEffect(() => {
-    setDescription(user?.aboutMe || '');
+    setDescription(user?.aboutMe || "");
   }, [user?.aboutMe]);
 
   useEffect(() => {
     if (isEditing && textareaRef.current) {
       textareaRef.current.focus();
-      textareaRef.current.setSelectionRange(textareaRef.current.value.length, textareaRef.current.value.length);
+      textareaRef.current.setSelectionRange(
+        textareaRef.current.value.length,
+        textareaRef.current.value.length
+      );
     }
   }, [isEditing]);
 
   const handleEditClick = () => {
     setIsEditing(true);
-    setDescription(user?.aboutMe || '');
+    setDescription(user?.aboutMe || "");
     setSaveError(null);
 
     setTimeout(() => {
@@ -74,30 +80,36 @@ export default function AboutInfoProfileCard({ user, onUserUpdate }: AboutInfoPr
 
       const updatedUser = {
         ...user,
-        aboutMe: description.trim()
+        aboutMe: description.trim(),
       };
 
-      const response = await axios.patch('http://localhost:8080/user', updatedUser, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-      });
+      const response = await axios.patch(
+        "http://localhost:8080/user",
+        updatedUser,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `${token}`,
+          },
+        }
+      );
 
       const savedUser = response.data;
       setAuthUser(savedUser);
-      
+
       if (onUserUpdate) {
         onUserUpdate(savedUser);
       }
 
       setIsEditing(false);
     } catch (error) {
-      console.error('Erro ao salvar descrição:', error);
+      console.error("Erro ao salvar descrição:", error);
       if (axios.isAxiosError(error)) {
-        setSaveError(error.response?.data?.message || 'Erro ao salvar descrição');
+        setSaveError(
+          error.response?.data?.message || "Erro ao salvar descrição"
+        );
       } else {
-        setSaveError('Erro inesperado ao salvar descrição');
+        setSaveError("Erro inesperado ao salvar descrição");
       }
     } finally {
       setIsSaving(false);
@@ -111,23 +123,27 @@ export default function AboutInfoProfileCard({ user, onUserUpdate }: AboutInfoPr
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Escape') {
-      setDescription(user?.aboutMe || '');
+    if (e.key === "Escape") {
+      setDescription(user?.aboutMe || "");
       setIsEditing(false);
       setSaveError(null);
     }
-    if (e.key === 'Enter' && e.ctrlKey) {
+    if (e.key === "Enter" && e.ctrlKey) {
       handleSaveDescription();
     }
   };
 
   if (!user) {
     return (
-      <div className="col-lg-6 d-flex flex-column align-items-center overflow-auto" style={{ maxHeight: "80vh" }}>
+      <div
+        className="col-lg-6 d-flex flex-column align-items-center overflow-auto"
+        style={{ maxHeight: "80vh" }}
+      >
         <div className="card rounded border mb-3 w-100">
           <div className="card-body">
             <div className="alert alert-warning" role="alert">
-              <i className="bi bi-exclamation-triangle"></i> Dados do usuário não disponíveis
+              <i className="bi bi-exclamation-triangle"></i> Dados do usuário
+              não disponíveis
             </div>
           </div>
         </div>
@@ -137,15 +153,20 @@ export default function AboutInfoProfileCard({ user, onUserUpdate }: AboutInfoPr
 
   return (
     <>
-      <div className="col-lg-6 d-flex flex-column align-items-center overflow-auto" style={{ maxHeight: "80vh" }}>
+      <div
+        className="col-lg-6 d-flex flex-column align-items-center overflow-auto"
+        style={{ maxHeight: "80vh" }}
+      >
         <div className="card rounded border mb-3 w-100">
           <div className="card-header d-flex justify-content-between align-items-center">
             <h5 className="card-title mb-0">
-              <span className="me-2"><i className="bi bi-person-lines-fill"></i></span>
+              <span className="me-2">
+                <i className="bi bi-person-lines-fill"></i>
+              </span>
               Sobre Mim
             </h5>
 
-            <button 
+            <button
               className="btn btn-outline-secondary btn-sm"
               onClick={handleEditClick}
               disabled={isEditing || isSaving}
@@ -179,26 +200,34 @@ export default function AboutInfoProfileCard({ user, onUserUpdate }: AboutInfoPr
                   onKeyDown={handleKeyDown}
                   placeholder="Conte um pouco sobre você..."
                   disabled={isSaving}
-                  style={{ resize: 'vertical', minHeight: '120px' }}
+                  style={{ resize: "vertical", minHeight: "120px" }}
                 />
                 <small className="text-muted mt-2 d-block">
-                  <i className="bi bi-info-circle"></i> Pressione Ctrl+Enter para salvar ou Esc para cancelar
+                  <i className="bi bi-info-circle"></i> Pressione Ctrl+Enter
+                  para salvar ou Esc para cancelar
                 </small>
               </div>
             ) : (
               <div>
                 {user.aboutMe && user.aboutMe.trim() ? (
-                  <p className="card-text" style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
+                  <p
+                    className="card-text"
+                    style={{ whiteSpace: "pre-wrap", lineHeight: "1.6" }}
+                  >
                     {user.aboutMe}
                   </p>
                 ) : (
                   <div className="text-center text-muted py-4">
-                    <i className="bi bi-chat-text" style={{ fontSize: '2rem', opacity: 0.5 }}></i>
+                    <i
+                      className="bi bi-chat-text"
+                      style={{ fontSize: "2rem", opacity: 0.5 }}
+                    ></i>
                     <p className="mt-2 mb-0">
                       Você ainda não adicionou uma descrição sobre si.
                     </p>
                     <small>
-                      Clique no ícone do lápis para adicionar informações sobre você!
+                      Clique no ícone do lápis para adicionar informações sobre
+                      você!
                     </small>
                   </div>
                 )}
@@ -210,7 +239,9 @@ export default function AboutInfoProfileCard({ user, onUserUpdate }: AboutInfoPr
         <div className="card rounded border w-100">
           <div className="card-header">
             <h5 className="card-title mb-0">
-              <span className="me-2"><i className="bi bi-file-earmark-text"></i></span>
+              <span className="me-2">
+                <i className="bi bi-file-earmark-text"></i>
+              </span>
               Meus Artigos
             </h5>
           </div>
@@ -228,27 +259,38 @@ export default function AboutInfoProfileCard({ user, onUserUpdate }: AboutInfoPr
               </div>
             ) : articles.length === 0 ? (
               <div className="text-center text-muted py-4">
-                <i className="bi bi-file-earmark-plus" style={{ fontSize: '2rem', opacity: 0.5 }}></i>
-                <p className="mt-2 mb-0">
-                  Você ainda não criou nenhum artigo.
-                </p>
-                <small>
-                  Comece criando seu primeiro artigo!
-                </small>
+                <i
+                  className="bi bi-file-earmark-plus"
+                  style={{ fontSize: "2rem", opacity: 0.5 }}
+                ></i>
+                <p className="mt-2 mb-0">Você ainda não criou nenhum artigo.</p>
+                <small>Comece criando seu primeiro artigo!</small>
               </div>
             ) : (
               <div className="list-group list-group-flush">
                 {articles.map((article) => (
-                  <div key={article.id} className="list-group-item d-flex justify-content-between align-items-start">
+                  <div
+                    key={article.id}
+                    className="list-group-item d-flex justify-content-between align-items-start"
+                  >
                     <div className="me-auto">
-                      <div className="fw-bold text-truncate" style={{ maxWidth: '300px' }}>
+                      <div
+                        className="fw-bold text-truncate"
+                        style={{ maxWidth: "300px" }}
+                      >
                         {article.title}
                       </div>
-                      <p className="mb-1 text-muted small text-truncate" style={{ maxWidth: '400px' }}>
+                      <p
+                        className="mb-1 text-muted small text-truncate"
+                        style={{ maxWidth: "400px" }}
+                      >
                         {article.description}
                       </p>
                       <small className="text-muted">
-                        <i className="bi bi-calendar3"></i> {new Date(article.publishedAt).toLocaleDateString('pt-BR')}
+                        <i className="bi bi-calendar3"></i>{" "}
+                        {new Date(article.publishedAt).toLocaleDateString(
+                          "pt-BR"
+                        )}
                       </small>
                     </div>
                     <button
@@ -268,7 +310,11 @@ export default function AboutInfoProfileCard({ user, onUserUpdate }: AboutInfoPr
 
       {/* Modal de Edição de Artigo */}
       {showEditModal && editingArticle && (
-        <div className="modal show d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+        <div
+          className="modal show d-block"
+          tabIndex={-1}
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+        >
           <div className="modal-dialog modal-lg">
             <div className="modal-content">
               <div className="modal-header">
@@ -350,7 +396,9 @@ export default function AboutInfoProfileCard({ user, onUserUpdate }: AboutInfoPr
                       value={editFormData.contentMD}
                       onChange={handleEditFormChange}
                       disabled={isUpdating}
-                      style={{ fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace' }}
+                      style={{
+                        fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+                      }}
                       required
                     />
                   </div>
@@ -381,7 +429,10 @@ export default function AboutInfoProfileCard({ user, onUserUpdate }: AboutInfoPr
                 >
                   {isUpdating ? (
                     <>
-                      <div className="spinner-border spinner-border-sm me-2" role="status">
+                      <div
+                        className="spinner-border spinner-border-sm me-2"
+                        role="status"
+                      >
                         <span className="visually-hidden">Atualizando...</span>
                       </div>
                       Atualizando...
@@ -401,7 +452,11 @@ export default function AboutInfoProfileCard({ user, onUserUpdate }: AboutInfoPr
 
       {/* Modal de Confirmação de Deleção */}
       {showDeleteModal && articleToDelete && (
-        <div className="modal show d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+        <div
+          className="modal show d-block"
+          tabIndex={-1}
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+        >
           <div className="modal-dialog modal-sm">
             <div className="modal-content">
               <div className="modal-header">
@@ -423,7 +478,7 @@ export default function AboutInfoProfileCard({ user, onUserUpdate }: AboutInfoPr
                   </div>
                 )}
                 <p>
-                  Tem certeza que deseja deletar o artigo{' '}
+                  Tem certeza que deseja deletar o artigo{" "}
                   <strong>"{articleToDelete.title}"</strong>?
                 </p>
                 <p className="text-muted small">
@@ -447,7 +502,10 @@ export default function AboutInfoProfileCard({ user, onUserUpdate }: AboutInfoPr
                 >
                   {isDeleting ? (
                     <>
-                      <div className="spinner-border spinner-border-sm me-2" role="status">
+                      <div
+                        className="spinner-border spinner-border-sm me-2"
+                        role="status"
+                      >
                         <span className="visually-hidden">Deletando...</span>
                       </div>
                       Deletando...
