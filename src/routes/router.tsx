@@ -6,10 +6,10 @@ import CartPage from "../pages/CartPage";
 import FavoritesPage from "../pages/FavoritesPage";
 import HomePage from "../pages/HomePage";
 import LoginPage from "../pages/LoginPage";
+import ProfilePage from "../pages/ProfilePage";
 import RegisterPage from "../pages/RegisterPage";
 import SearchPage from "../pages/SearchPage";
 import Layout from "./Layout";
-import ProfilePage from "../pages/ProfilePage";
 
 const router = createBrowserRouter([
   {

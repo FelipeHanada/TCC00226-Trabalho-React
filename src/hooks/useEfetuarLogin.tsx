@@ -3,7 +3,34 @@ import { useState } from 'react';
 import type { Usuario } from "../interfaces/Usuario";
 
 interface LoginResponse {
-  id: number;
+  token: string;
+  user: {
+    id: number;
+    email: string;
+    firstName: string;
+    lastName: string;
+    aboutMe: string;
+    phoneNumber: string;
+  };
+}
+
+interface ApiLoginResponse {
+  token: string;
+  user?: {
+    id: number;
+    email: string;
+    firstName: string;
+    lastName: string;
+    aboutMe?: string;
+    phoneNumber?: string;
+  };
+  // Fallback para casos onde os dados do usuário não vêm separados
+  id?: number;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  aboutMe?: string;
+  phoneNumber?: string;
 }
 
 interface UseEfetuarLoginReturn {
@@ -32,17 +59,35 @@ const useEfetuarLogin = (): UseEfetuarLoginReturn => {
         password: usuario.senha
       };
 
-      const response = await axios.post('http://localhost:8080/auth/login', loginData, {
+      const response = await axios.post<ApiLoginResponse>('http://localhost:8080/auth/login', loginData, {
         headers: {
           'Content-Type': 'application/json',
         },
       });
-
       
-      
-      if (response.data.token && Number(response.data.token) > 0) {
+      if (response.data.token) {
         setIsSuccess(true);
-        return { id: Number(response.data.token) };
+        
+        const userData = response.data.user ? {
+          id: response.data.user.id,
+          email: response.data.user.email,
+          firstName: response.data.user.firstName,
+          lastName: response.data.user.lastName,
+          aboutMe: response.data.user.aboutMe || '',
+          phoneNumber: response.data.user.phoneNumber || ''
+        } : {
+          id: response.data.id!,
+          email: response.data.email!,
+          firstName: response.data.firstName!,
+          lastName: response.data.lastName!,
+          aboutMe: response.data.aboutMe || '',
+          phoneNumber: response.data.phoneNumber || ''
+        };
+        
+        return {
+          token: response.data.token,
+          user: userData
+        };
       } else {
         throw new Error('Credenciais inválidas');
       }

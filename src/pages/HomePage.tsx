@@ -5,9 +5,7 @@ import pudimImg from '../assets/images/pudim.png'
 import slide1Img from '../assets/images/slide1.png'
 import slide2Img from '../assets/images/slide2.png'
 import { default as slide3Img, default as tortaMorangoImg } from '../assets/images/tortamorango.png'
-import Alert from '../components/Alert'
 import Breadcrumb from '../components/Breadcumb'
-import BreadcrumbInfo from '../components/BreadcumbInfo'
 import type { CarouselItem } from '../components/Carousel'
 import Carousel from '../components/Carousel'
 import Comment from '../components/Comment'
@@ -15,9 +13,10 @@ import type { RecipeCardProps } from '../components/RecipeCard'
 import RecipeCard from '../components/RecipeCard'
 import RecipeSection from '../components/RecipeSectionProps'
 import RecipeSidebarNav from '../components/RecipeSideBarNav'
-import useHomeArticles from '../hooks/useHomeArticles'
+import useHomeArticle from '../hooks/useHomeArticle'
 import { useAuthStore } from '../store/authStore'
 import { getDefaultIngredients, getDefaultInstructions, parseArticleContent } from '../utils/articleParser'
+import ApiRecipeCard from '../components/ApiRecipeCard'
 
 
 const carouselItems: CarouselItem[] = [
@@ -122,11 +121,11 @@ const sideRecipes: RecipeCardProps[] = [
 export default function HomePage() {
   const navigate = useNavigate()
   const { isAuthenticated } = useAuthStore()
-  const { featuredArticle, sideArticles, loading, error } = useHomeArticles()
+  const { currentArticle, sideArticles, loading, error } = useHomeArticle()
   
   // Processar conteúdo do artigo principal
-  const articleContent = featuredArticle?.contentMD 
-    ? parseArticleContent(featuredArticle.contentMD)
+  const articleContent = currentArticle?.contentMD 
+    ? parseArticleContent(currentArticle.contentMD)
     : { ingredients: [], instructions: [] }
   
   const ingredients = articleContent.ingredients.length > 0 
@@ -158,11 +157,7 @@ export default function HomePage() {
       )}
 
       <Carousel items={carouselItems} />
-      <Alert
-        message="Os textos exibidos na receita e nos cards laterais foram gerados com auxílio da ferramenta Chat GPT-4o mini."
-        type="info"
-        dismissible
-      />
+      
       <div className="ms-4 me-4 mb-3">
         <div className="row">
           <div className="col-lg-2 mb-3" style={{ position: "relative" }}>
@@ -170,15 +165,13 @@ export default function HomePage() {
           </div>
 
           <div className="col-lg-7 mb-3">
-            <BreadcrumbInfo message="Isso é um BreadCrumb." />
-
             <Breadcrumb
               items={[
                 { label: 'Página Inicial', href: '#' },
                 { label: 'Doces', href: '#' },
                 { label: 'Tortas', href: '#' },
                 { label: 'Marco Antónitos', href: '#' },
-                { label: featuredArticle?.title || 'Receita Completa de Torta de Morango', active: true },
+                { label: currentArticle?.title || 'Receita Completa de Torta de Morango', active: true },
               ]}
             />
 
@@ -197,11 +190,11 @@ export default function HomePage() {
               </div>
             ) : (
               <RecipeSection
-                author={featuredArticle?.author ? `${featuredArticle.author.firstName} ${featuredArticle.author.lastName}` : "Autor Desconhecido"}
-                date={featuredArticle ? "Publicado recentemente" : "Publicado em 01/04/2025 às 20:33"}
-                imageSrc={featuredArticle?.cardImage || tortaMorangoImg}
-                imageAlt={featuredArticle?.title || "Torta de Morango"}
-                description={featuredArticle?.description || "A torta de morango é uma sobremesa clássica e deliciosa, perfeita para qualquer ocasião..."}
+                author={currentArticle?.author ? `${currentArticle.author.firstName} ${currentArticle.author.lastName}` : "Autor Desconhecido"}
+                date={currentArticle ? "Publicado recentemente" : "Publicado em 01/04/2025 às 20:33"}
+                imageSrc={currentArticle?.cardImage || tortaMorangoImg}
+                imageAlt={currentArticle?.title || "Torta de Morango"}
+                description={currentArticle?.description || "A torta de morango é uma sobremesa clássica e deliciosa, perfeita para qualquer ocasião..."}
                 ingredients={ingredients}
                 instructions={instructions}
               />
@@ -234,11 +227,7 @@ export default function HomePage() {
                 <>
                   {sideArticles.map((article) => (
                     <div key={article.id} className="col-sm-6 col-lg-12">
-                      <RecipeCard 
-                        image={article.cardImage || pudimImg}
-                        title={article.title}
-                        description={article.description}
-                      />
+                      <ApiRecipeCard article={article} />
                     </div>
                   ))}
                   {sideArticles.length < 2 && sideRecipes.slice(sideArticles.length).map((recipe, index) => (

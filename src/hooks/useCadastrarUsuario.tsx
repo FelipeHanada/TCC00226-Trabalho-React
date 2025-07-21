@@ -6,7 +6,7 @@ export interface UsuarioCadastro {
     lastName: string;
     phoneNumber: string;
     email: string;
-    passwordHash: string;
+    password: string;
     aboutMe?: string;
 }
 

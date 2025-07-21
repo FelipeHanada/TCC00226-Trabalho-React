@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import fruitLogo from "../assets/images/fruit-tomato-vegetables-svgrepo-com.svg";
 
 export default function SearchPageNavbar() {
@@ -26,11 +27,11 @@ export default function SearchPageNavbar() {
           </button>
         </form>
 
-        <a href="./perfil.html" className="ms-3 text-decoration-none">
+        <Link to="../profile" className="ms-3 text-decoration-none">
           <div className="profile-button" style={{ borderRadius: "50%" }}>
             <i className="bi bi-person-fill"></i>
           </div>
-        </a>
+        </Link>
       </div>
 
       <nav className="mt-3 mb-2">

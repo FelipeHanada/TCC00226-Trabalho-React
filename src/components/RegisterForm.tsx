@@ -1,10 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import type { UsuarioCadastro } from '../hooks/useCadastrarUsuario';
 import useCadastrarUsuario from '../hooks/useCadastrarUsuario';
+import ConfirmationModal from './ConfirmationModal';
 
 const registerSchema = z.object({
   firstName: z.string()
@@ -37,6 +38,7 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 export default function RegisterForm() {
   const navigate = useNavigate();
   const cadastrarUsuario = useCadastrarUsuario();
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   
   const {
     register,
@@ -49,11 +51,15 @@ export default function RegisterForm() {
 
   useEffect(() => {
     if (cadastrarUsuario.isSuccess) {
-      alert('Usuário cadastrado com sucesso!');
+      setShowSuccessModal(true);
       reset();
-      navigate('/login');
     }
-  }, [cadastrarUsuario.isSuccess, reset, navigate]);
+  }, [cadastrarUsuario.isSuccess, reset]);
+
+  const handleModalClose = () => {
+    setShowSuccessModal(false);
+    navigate('/login');
+  };
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
@@ -62,7 +68,7 @@ export default function RegisterForm() {
         lastName: data.lastName,
         phoneNumber: data.phoneNumber,
         email: data.email,
-        passwordHash: data.password,
+        password: data.password,
         aboutMe: ''
       };
 
@@ -228,6 +234,16 @@ export default function RegisterForm() {
           <i className="bi bi-arrow-left"></i>&nbsp;Faça login
         </a>
       </form>
+
+      <ConfirmationModal
+        isOpen={showSuccessModal}
+        onClose={handleModalClose}
+        title="Cadastro Realizado!"
+        message="Sua conta foi criada com sucesso. Você será redirecionado para a página de login."
+        confirmText="Continuar"
+        confirmVariant="success"
+        icon="success"
+      />
     </>
   )
 }

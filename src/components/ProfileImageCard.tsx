@@ -9,8 +9,6 @@ export default function ProfileImageCard({ user }: ProfileImageCardProps) {
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
 
-  {console.log("user:", user)}
-
   if (!user) {
     return (
       <div className="col-lg-6 d-flex flex-column align-items-center justify-content-center">

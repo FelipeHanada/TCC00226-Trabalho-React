@@ -1,19 +1,16 @@
+import carnesImg from '../assets/images/carnes.png';
+import massasImg from '../assets/images/massas.png';
+import pave from '../assets/images/pave.png';
+import pudimChocolate from '../assets/images/pudim-chocolate.png';
+import saladasImg from '../assets/images/saladas.png';
+import sobremesasImg from '../assets/images/sobremesas.png';
+import tortaLimao from '../assets/images/torta-limao.png';
+import ApiArticleCard from "../components/ApiArticleCard";
 import Carousel, { type CarouselItem } from "../components/Carousel";
-import SearchPageNavbar from "../components/SearchPageNavbar";
-import pudimChocolate from '../assets/images/pudim-chocolate.png'
-import pave from '../assets/images/pave.png'
-import tortaLimao from '../assets/images/torta-limao.png'
-import saladasImg from '../assets/images/saladas.png'
-import sobremesasImg from '../assets/images/sobremesas.png'
-import carnesImg from '../assets/images/carnes.png'
-import massasImg from '../assets/images/massas.png'
 import CategoryCard, { type CategoryCardProps } from "../components/CategoryCard";
-import boloChocolateImg from '../assets/images/bolo-chocolate.png'
-import lasanhaBolonhesaImg from '../assets/images/lasanha-bolonhesa.png'
-import frangoGrelhadoImg from '../assets/images/frango-grelhado.png'
-import type { RecipeCardProps } from "../components/RecipeCard";
-import RecipeCard from "../components/RecipeCard";
 import Footer from "../components/Footer";
+import ProfilePageNavbar from '../components/ProfilePageNavbar';
+import usePopularArticles from "../hooks/usePopularArticles";
 
 const carouselItems: CarouselItem[] = [
   {
@@ -39,37 +36,12 @@ const categories: CategoryCardProps[] = [
   { image: massasImg, alt: 'Massas', title: 'Massas' },
 ]
 
-const popularRecipes: RecipeCardProps[] = [
-  {
-    image: boloChocolateImg,
-    alt: 'Bolo de Chocolate',
-    title: 'Bolo de Chocolate',
-    description: 'Delicioso bolo fofinho coberto com ganache de chocolate.',
-    link: './index.html',
-    buttonText: 'Ver Receita',
-  },
-  {
-    image: lasanhaBolonhesaImg,
-    alt: 'Lasanha à Bolonhesa',
-    title: 'Lasanha à Bolonhesa',
-    description: 'Camadas de massa, molho e muito queijo para seu almoço.',
-    link: './index.html',
-    buttonText: 'Ver Receita',
-  },
-  {
-    image: frangoGrelhadoImg,
-    alt: 'Frango Grelhado',
-    title: 'Frango Grelhado',
-    description: 'Peito de frango suculento com tempero especial da casa.',
-    link: './index.html',
-    buttonText: 'Ver Receita',
-  },
-]
-
 export default function SearchPage() {
+  const { articles, loading, error } = usePopularArticles(6);
+
   return (
     <>
-      <SearchPageNavbar />
+      <ProfilePageNavbar />
       <Carousel items={carouselItems} />
       <main className="container w-100 d-flex flex-column justify-content-center align-items-center">
         <section className="container my-5">
@@ -86,11 +58,26 @@ export default function SearchPage() {
         <section className="container my-5">
           <h2 className="mb-4">Receitas Populares</h2>
           <div className="row g-4">
-          {popularRecipes.map((recipe, index) => (
-          <div className="col-md-4" key={index}>
-            <RecipeCard {...recipe} />
-          </div>
-          ))}
+            {loading ? (
+              <div className="col-12 text-center">
+                <div className="spinner-border text-primary" role="status">
+                  <span className="visually-hidden">Carregando receitas...</span>
+                </div>
+                <p className="mt-3">Carregando receitas populares...</p>
+              </div>
+            ) : error ? (
+              <div className="col-12">
+                <div className="alert alert-danger" role="alert">
+                  <i className="bi bi-exclamation-triangle"></i> {error}
+                </div>
+              </div>
+            ) : (
+              articles.map((article) => (
+                <div className="col-md-4" key={article.id}>
+                  <ApiArticleCard article={article} />
+                </div>
+              ))
+            )}
           </div>
         </section>
       </main>

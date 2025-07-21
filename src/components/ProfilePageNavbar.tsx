@@ -22,11 +22,11 @@ export default function ProfilePageNavbar() {
     <>
       <nav className="navbar sticky-top bg-body-tertiary">
         <div className="container-fluid">
-            <a className="navbar-brand" href="./pag-busca.html">
+            <Link className="navbar-brand" to="./search">
                 <img src={fruitLogo} alt="Logo" width="30" height="30"
                     className="d-inline-block align-text-top" id="nav-icon" />
                 Site de Receitas
-            </a>
+            </Link>
 
             <div className="d-flex align-items-center gap-2">
                 <button

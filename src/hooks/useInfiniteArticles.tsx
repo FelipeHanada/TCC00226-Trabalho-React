@@ -75,8 +75,6 @@ const useInfiniteArticles = (pageSize: number = 20): UseInfiniteArticlesReturn =
       const response = await axios.get<PageResult<Article>>(
         `http://localhost:8080/article?page=${page}&pageSize=${pageSize}`
       );
-
-      console.log("articles:", response)
       
       if (append) {
         setArticles(prevArticles => [...prevArticles, ...response.data.items]);

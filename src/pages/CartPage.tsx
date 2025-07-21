@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CartItemComponent from '../components/CartItemComponent';
 import { useCartStore } from '../store/cartStore';
@@ -5,16 +6,43 @@ import { useCartStore } from '../store/cartStore';
 export default function CartPage() {
   const { items, total, clearCart, getItemCount } = useCartStore();
   const navigate = useNavigate();
+  const [showClearModal, setShowClearModal] = useState(false);
 
   const handleContinueShopping = () => {
     navigate('/');
   };
 
   const handleClearCart = () => {
-    if (window.confirm('Tem certeza que deseja limpar o carrinho?')) {
-      clearCart();
-    }
+    setShowClearModal(true);
   };
+
+  const confirmClearCart = () => {
+    clearCart();
+    setShowClearModal(false);
+  };
+
+  const cancelClearCart = () => {
+    setShowClearModal(false);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && showClearModal) {
+        cancelClearCart();
+      }
+    };
+
+    if (showClearModal) {
+      document.addEventListener('keydown', handleKeyDown);
+      // Previne scroll do body quando modal está aberto
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'unset';
+    };
+  }, [showClearModal]);
 
   if (items.length === 0) {
     return (
@@ -125,6 +153,68 @@ export default function CartPage() {
           </div>
         </div>
       </div>
+
+      {/* Modal de Confirmação para Limpar Carrinho */}
+      {showClearModal && (
+        <div 
+          className="modal show d-block" 
+          tabIndex={-1} 
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+          onClick={cancelClearCart}
+        >
+          <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">
+                  <i className="bi bi-exclamation-triangle text-warning me-2"></i>
+                  Confirmar Ação
+                </h5>
+                <button 
+                  type="button" 
+                  className="btn-close" 
+                  onClick={cancelClearCart}
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div className="modal-body">
+                <div className="text-center">
+                  <i className="bi bi-cart-x display-4 text-danger mb-3"></i>
+                  <h6 className="mb-3">Tem certeza que deseja limpar todo o carrinho?</h6>
+                  <p className="text-muted">
+                    Esta ação removerá <strong>{getItemCount()} {getItemCount() === 1 ? 'item' : 'itens'}</strong> do seu carrinho.
+                    <br />
+                    <strong>Esta ação não pode ser desfeita.</strong>
+                  </p>
+                  <div className="alert alert-info d-flex align-items-center mt-3">
+                    <i className="bi bi-info-circle me-2"></i>
+                    <small>
+                      Valor total que será perdido: <strong className="text-success">R$ {total.toFixed(2).replace('.', ',')}</strong>
+                    </small>
+                  </div>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button 
+                  type="button" 
+                  className="btn btn-secondary"
+                  onClick={cancelClearCart}
+                >
+                  <i className="bi bi-x-circle me-1"></i>
+                  Cancelar
+                </button>
+                <button 
+                  type="button" 
+                  className="btn btn-danger"
+                  onClick={confirmClearCart}
+                >
+                  <i className="bi bi-trash me-1"></i>
+                  Sim, Limpar Carrinho
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

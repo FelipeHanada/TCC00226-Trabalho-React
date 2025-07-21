@@ -47,15 +47,15 @@ export default function LoginForm() {
       });
 
       const userData = {
-        id: loginResponse.id,
-        email: data.email,
-        firstName: 'Usuário',
-        lastName: 'Logado',
-        aboutMe: '',
-        phoneNumber: ''
+        id: loginResponse.user.id,
+        email: loginResponse.user.email,
+        firstName: loginResponse.user.firstName,
+        lastName: loginResponse.user.lastName,
+        aboutMe: loginResponse.user.aboutMe,
+        phoneNumber: loginResponse.user.phoneNumber
       };
-      
-      login(userData, `token-${userData.id}`);
+
+      login(userData, loginResponse.token);
 
     } catch (error) {
       console.error('Erro ao fazer login:', error);
@@ -65,15 +65,6 @@ export default function LoginForm() {
   return (
     <>
       <h1 className="fw-bold" style={{ color: "#3c3c3c" }}>Entrar</h1>
-      <button type="button" className="btn btn-primary rounded-pill fw-bold">
-        <i className="bi bi-facebook"></i>&nbsp; Entrar com Facebook
-      </button>
-
-      <button type="button" className="btn btn-danger rounded-pill fw-bold">
-        <i className="bi bi-google"></i>&nbsp; Entrar com Google
-      </button>
-
-      <p className="w-100 login-text-divisor text-center">ou</p>
 
       <form className="w-100 d-flex flex-column" onSubmit={handleSubmit(onSubmit)}>
         <div className="form-floating mb-3">
