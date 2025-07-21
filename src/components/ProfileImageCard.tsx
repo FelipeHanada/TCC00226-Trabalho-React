@@ -8,7 +8,7 @@ interface ProfileImageCardProps {
 export default function ProfileImageCard({ user }: ProfileImageCardProps) {
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
-
+  
   if (!user) {
     return (
       <div className="col-lg-6 d-flex flex-column align-items-center justify-content-center">
@@ -50,52 +50,38 @@ export default function ProfileImageCard({ user }: ProfileImageCardProps) {
         )}
       </div>
 
-      <h2 className="mb-2">{user.firstName} {user.lastName}</h2>
+      <h2 className="mb-3 text-center">{user.firstName} {user.lastName}</h2>
       
-      <div className="text-center">
-        <div className="mb-3">
-          <h6 className="text-muted mb-1">
-            <i className="bi bi-envelope"></i> Email
-          </h6>
-          <a 
-            href={`mailto:${user.email}`} 
-            className="text-decoration-none"
-          >
-            {user.email}
-          </a>
-        </div>
+      <div className="w-100" style={{ maxWidth: "350px" }}>
+        <div className="card border-0 bg-light">
+          <div className="card-body">
+            <div className="mb-3">
+              <h6 className="text-muted mb-1 d-flex align-items-center">
+                <i className="bi bi-envelope me-2"></i> Email
+              </h6>
+              <a 
+                href={`mailto:${user.email}`} 
+                className="text-decoration-none fw-medium"
+              >
+                {user.email}
+              </a>
+            </div>
 
-        {user.phoneNumber && (
-          <div className="mb-3">
-            <h6 className="text-muted mb-1">
-              <i className="bi bi-telephone"></i> Telefone
-            </h6>
-            <a 
-              href={`tel:${user.phoneNumber}`} 
-              className="text-decoration-none"
-            >
-              {user.phoneNumber}
-            </a>
+            {user.phoneNumber && (
+              <div className="mb-3">
+                <h6 className="text-muted mb-1 d-flex align-items-center">
+                  <i className="bi bi-telephone me-2"></i> Telefone
+                </h6>
+                <a 
+                  href={`tel:${user.phoneNumber}`} 
+                  className="text-decoration-none fw-medium"
+                >
+                  {user.phoneNumber}
+                </a>
+              </div>
+            )}
           </div>
-        )}
-
-        <div className="mb-3">
-          <h6 className="text-muted mb-1">
-            <i className="bi bi-person-badge"></i> ID do Usuário
-          </h6>
-          <span className="badge bg-secondary">#{user.id}</span>
         </div>
-
-        {user.aboutMe && (
-          <div className="mt-4">
-            <h6 className="text-muted mb-2">
-              <i className="bi bi-chat-text"></i> Sobre mim
-            </h6>
-            <p className="text-muted small" style={{ maxWidth: "300px" }}>
-              {user.aboutMe}
-            </p>
-          </div>
-        )}
       </div>
     </div>
   );

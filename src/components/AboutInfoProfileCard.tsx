@@ -1,72 +1,175 @@
-export default function AboutInfoProfileCard() {
-  return (
-    <>
+import axios from 'axios';
+import { useRef, useState } from 'react';
+import type { User } from '../store/authStore';
+import { useAuthStore } from '../store/authStore';
+
+interface AboutInfoProfileCardProps {
+  user?: User;
+  onUserUpdate?: (updatedUser: User) => void;
+}
+
+export default function AboutInfoProfileCard({ user, onUserUpdate }: AboutInfoProfileCardProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [description, setDescription] = useState(user?.aboutMe || '');
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { setUser: setAuthUser } = useAuthStore();
+
+  const handleEditClick = () => {
+    setIsEditing(true);
+    setDescription(user?.aboutMe || '');
+    setSaveError(null);
+    
+    // Focar no textarea após renderização
+    setTimeout(() => {
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+        textareaRef.current.select();
+      }
+    }, 100);
+  };
+
+  const handleSaveDescription = async () => {
+    if (!user) return;
+
+    try {
+      setIsSaving(true);
+      setSaveError(null);
+
+      const updatedUser = {
+        ...user,
+        aboutMe: description.trim()
+      };
+
+      const response = await axios.patch('http://localhost:8080/user', updatedUser, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      // Atualizar o estado local e o store
+      const savedUser = response.data;
+      setAuthUser(savedUser);
+      
+      if (onUserUpdate) {
+        onUserUpdate(savedUser);
+      }
+
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Erro ao salvar descrição:', error);
+      if (axios.isAxiosError(error)) {
+        setSaveError(error.response?.data?.message || 'Erro ao salvar descrição');
+      } else {
+        setSaveError('Erro inesperado ao salvar descrição');
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleBlur = () => {
+    if (!isSaving) {
+      handleSaveDescription();
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Escape') {
+      setDescription(user?.aboutMe || '');
+      setIsEditing(false);
+      setSaveError(null);
+    }
+    if (e.key === 'Enter' && e.ctrlKey) {
+      handleSaveDescription();
+    }
+  };
+
+  if (!user) {
+    return (
       <div className="col-lg-6 d-flex flex-column align-items-center overflow-auto" style={{ maxHeight: "80vh" }}>
         <div className="card rounded border mb-3 w-100">
-            <div className="card-header d-flex justify-content-between align-items-center">
-                <h5 className="card-title">
-                    <span className="me-2"><i className="fa-solid fa-user"></i></span>
-                    Sobre Mim
-                </h5>
-
-                <a href="#" className="btn btn-outline-secondary" id="add-recipe-btn">
-                    <i className="fa-solid fa-pencil"></i>
-                </a>
+          <div className="card-body">
+            <div className="alert alert-warning" role="alert">
+              <i className="bi bi-exclamation-triangle"></i> Dados do usuário não disponíveis
             </div>
-            <div className="card-body">
-                <p className="card-text">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
-                    tempor
-                    incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-                    exercitation
-                    ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-                    reprehenderit in
-                    voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-                    cupidatat non
-                    proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-            </div>
-        </div>
-
-        <div className="card rounded border mb-3 w-100">
-            <div className="card-header d-flex justify-content-between align-items-center">
-                <h5 className="card-title">
-                    <span className="me-2"><i className="fa-solid fa-star"></i></span>
-                    Minhas Receitas Favoritas
-                </h5>
-
-                <a href="#" className="btn btn-outline-secondary" id="add-recipe-btn">
-                    <i className="fa-solid fa-plus"></i>
-                </a>
-            </div>
-
-            <div className="card-body">
-                <p className="card-text">Aqui estão algumas das minhas receitas favoritas:</p>
-                <ul className="list-group list-group-flush">
-                    <li className="list-group-item">Receita 1</li>
-                    <li className="list-group-item">Receita 2</li>
-                    <li className="list-group-item">Receita 3</li>
-                    <li className="list-group-item">Receita 4</li>
-                </ul>
-            </div>
-        </div>
-
-        <div className="card rounded border mb-3 w-100">
-            <div className="card-header d-flex justify-content-between align-items-center">
-                <h5 className="card-title">
-                    <span className="me-2"><i className="fa-solid fa-book"></i></span>
-                    Minhas Receitas Criadas
-                </h5>
-            </div>
-            <div className=" card-body">
-                <p className="card-text">Aqui estão algumas das receitas que eu criei:</p>
-                <ul className="list-group list-group-flush">
-                    <li className="list-group-item">Receita 1</li>
-                    <li className="list-group-item">Receita 2</li>
-                    <li className="list-group-item">Receita 3</li>
-                </ul>
-            </div>
+          </div>
         </div>
       </div>
-    </>
-  )
+    );
+  }
+
+  return (
+    <div className="col-lg-6 d-flex flex-column align-items-center overflow-auto" style={{ maxHeight: "80vh" }}>
+      <div className="card rounded border mb-3 w-100">
+        <div className="card-header d-flex justify-content-between align-items-center">
+          <h5 className="card-title mb-0">
+            <span className="me-2"><i className="bi bi-person-lines-fill"></i></span>
+            Sobre Mim
+          </h5>
+
+          <button 
+            className="btn btn-outline-secondary btn-sm"
+            onClick={handleEditClick}
+            disabled={isEditing || isSaving}
+            title="Editar descrição"
+          >
+            {isSaving ? (
+              <div className="spinner-border spinner-border-sm" role="status">
+                <span className="visually-hidden">Salvando...</span>
+              </div>
+            ) : (
+              <i className="bi bi-pencil"></i>
+            )}
+          </button>
+        </div>
+        <div className="card-body">
+          {saveError && (
+            <div className="alert alert-danger alert-sm mb-3" role="alert">
+              <i className="bi bi-exclamation-triangle"></i> {saveError}
+            </div>
+          )}
+
+          {isEditing ? (
+            <div>
+              <textarea
+                ref={textareaRef}
+                className="form-control"
+                rows={6}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                onBlur={handleBlur}
+                onKeyDown={handleKeyDown}
+                placeholder="Conte um pouco sobre você..."
+                disabled={isSaving}
+                style={{ resize: 'vertical', minHeight: '120px' }}
+              />
+              <small className="text-muted mt-2 d-block">
+                <i className="bi bi-info-circle"></i> Pressione Ctrl+Enter para salvar ou Esc para cancelar
+              </small>
+            </div>
+          ) : (
+            <div>
+              {user.aboutMe && user.aboutMe.trim() ? (
+                <p className="card-text" style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
+                  {user.aboutMe}
+                </p>
+              ) : (
+                <div className="text-center text-muted py-4">
+                  <i className="bi bi-chat-text" style={{ fontSize: '2rem', opacity: 0.5 }}></i>
+                  <p className="mt-2 mb-0">
+                    Você ainda não adicionou uma descrição sobre si.
+                  </p>
+                  <small>
+                    Clique no ícone do lápis para adicionar informações sobre você!
+                  </small>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
