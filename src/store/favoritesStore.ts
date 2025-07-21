@@ -117,7 +117,7 @@ export const useFavoritesStore = create<FavoritesState>()(
           set({ error: null });
           
           await axios.delete(
-            `http://localhost:8080/article/favorite/remove/${id}?token=${token}`
+            `http://localhost:8080/article/favorite/${id}?token=${token}`
           );
           
           const { favorites } = get();

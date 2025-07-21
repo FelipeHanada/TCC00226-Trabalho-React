@@ -1,19 +1,8 @@
 import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
+import useUserArticles from '../hooks/useUserArticles';
 import type { User } from '../store/authStore';
 import { useAuthStore } from '../store/authStore';
-
-interface Article {
-  id: number;
-  title: string;
-  description: string;
-  cardImage?: string;
-  contentMD: string;
-  publishedAt: string;
-  author: {
-    id: number;
-  };
-}
 
 interface AboutInfoProfileCardProps {
   user?: User;
@@ -21,6 +10,7 @@ interface AboutInfoProfileCardProps {
 }
 
 export default function AboutInfoProfileCard({ user, onUserUpdate }: AboutInfoProfileCardProps) {
+  // Estados para edição da descrição
   const [isEditing, setIsEditing] = useState(false);
   const [description, setDescription] = useState(user?.aboutMe || '');
   const [isSaving, setIsSaving] = useState(false);
@@ -28,50 +18,39 @@ export default function AboutInfoProfileCard({ user, onUserUpdate }: AboutInfoPr
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { setUser: setAuthUser } = useAuthStore();
 
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [articlesLoading, setArticlesLoading] = useState(true);
-  const [articlesError, setArticlesError] = useState<string | null>(null);
-
-  const [editingArticle, setEditingArticle] = useState<Article | null>(null);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [editFormData, setEditFormData] = useState({
-    title: '',
-    description: '',
-    cardImage: '',
-    contentMD: ''
-  });
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [updateError, setUpdateError] = useState<string | null>(null);
-
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [articleToDelete, setArticleToDelete] = useState<Article | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
+  // Hook para gerenciar artigos do usuário
+  const {
+    articles,
+    articlesLoading,
+    articlesError,
+    editingArticle,
+    showEditModal,
+    editFormData,
+    isUpdating,
+    updateError,
+    showDeleteModal,
+    articleToDelete,
+    isDeleting,
+    deleteError,
+    handleEditArticle,
+    handleUpdateArticle,
+    handleDeleteArticle,
+    confirmDeleteArticle,
+    handleEditFormChange,
+    setShowEditModal,
+    setShowDeleteModal,
+  } = useUserArticles(user);
 
   useEffect(() => {
-    const fetchUserArticles = async () => {
-      if (!user?.id) return;
+    setDescription(user?.aboutMe || '');
+  }, [user?.aboutMe]);
 
-      try {
-        setArticlesLoading(true);
-        setArticlesError(null);
-        
-        const response = await axios.get(`http://localhost:8080/article/author/${user.id}`);
-        setArticles(response.data.items);
-      } catch (error) {
-        console.error('Erro ao buscar artigos:', error);
-        if (axios.isAxiosError(error)) {
-          setArticlesError(error.response?.data?.message || 'Erro ao carregar artigos');
-        } else {
-          setArticlesError('Erro inesperado ao carregar artigos');
-        }
-      } finally {
-        setArticlesLoading(false);
-      }
-    };
-
-    fetchUserArticles();
-  }, [user?.id]);
+  useEffect(() => {
+    if (isEditing && textareaRef.current) {
+      textareaRef.current.focus();
+      textareaRef.current.setSelectionRange(textareaRef.current.value.length, textareaRef.current.value.length);
+    }
+  }, [isEditing]);
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -141,101 +120,6 @@ export default function AboutInfoProfileCard({ user, onUserUpdate }: AboutInfoPr
     }
   };
 
-  const handleEditArticle = (article: Article) => {
-    setEditingArticle(article);
-    setEditFormData({
-      title: article.title,
-      description: article.description,
-      cardImage: article.cardImage || '',
-      contentMD: article.contentMD
-    });
-    setUpdateError(null);
-    setShowEditModal(true);
-  };
-
-  const handleUpdateArticle = async () => {
-    if (!editingArticle) return;
-
-    try {
-      setIsUpdating(true);
-      setUpdateError(null);
-
-      const updatedArticle = {
-        id: editingArticle.id,
-        title: editFormData.title.trim(),
-        description: editFormData.description.trim(),
-        cardImage: editFormData.cardImage.trim() || null,
-        contentMD: editFormData.contentMD.trim(),
-        author: {
-          id: user!.id
-        }
-      };
-
-      await axios.patch(`http://localhost:8080/article`, updatedArticle, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const response = await axios.get(`http://localhost:8080/article/author/${user!.id}`);
-      setArticles(response.data.items);
-
-      setShowEditModal(false);
-      setEditingArticle(null);
-    } catch (error) {
-      console.error('Erro ao atualizar artigo:', error);
-      if (axios.isAxiosError(error)) {
-        setUpdateError(error.response?.data?.message || 'Erro ao atualizar artigo');
-      } else {
-        setUpdateError('Erro inesperado ao atualizar artigo');
-      }
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  const handleDeleteArticle = (article: Article) => {
-    setArticleToDelete(article);
-    setDeleteError(null);
-    setShowDeleteModal(true);
-  };
-
-  const confirmDeleteArticle = async () => {
-    if (!articleToDelete) return;
-
-    try {
-      setIsDeleting(true);
-      setDeleteError(null);
-
-      await axios.delete(`http://localhost:8080/article/${articleToDelete.id}`);
-
-      const response = await axios.get(`http://localhost:8080/article/author/${user!.id}`);
-      setArticles(response.data.items);
-
-      setShowDeleteModal(false);
-      setShowEditModal(false);
-      setArticleToDelete(null);
-      setEditingArticle(null);
-    } catch (error) {
-      console.error('Erro ao deletar artigo:', error);
-      if (axios.isAxiosError(error)) {
-        setDeleteError(error.response?.data?.message || 'Erro ao deletar artigo');
-      } else {
-        setDeleteError('Erro inesperado ao deletar artigo');
-      }
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-
-  const handleEditFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setEditFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
   if (!user) {
     return (
       <div className="col-lg-6 d-flex flex-column align-items-center overflow-auto" style={{ maxHeight: "80vh" }}>
@@ -253,7 +137,6 @@ export default function AboutInfoProfileCard({ user, onUserUpdate }: AboutInfoPr
   return (
     <>
       <div className="col-lg-6 d-flex flex-column align-items-center overflow-auto" style={{ maxHeight: "80vh" }}>
-        {/* Card Sobre Mim */}
         <div className="card rounded border mb-3 w-100">
           <div className="card-header d-flex justify-content-between align-items-center">
             <h5 className="card-title mb-0">
@@ -323,7 +206,6 @@ export default function AboutInfoProfileCard({ user, onUserUpdate }: AboutInfoPr
           </div>
         </div>
 
-        {/* Card Meus Artigos */}
         <div className="card rounded border w-100">
           <div className="card-header">
             <h5 className="card-title mb-0">
